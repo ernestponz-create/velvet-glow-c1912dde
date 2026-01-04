@@ -6,7 +6,8 @@ import {
   Calendar, 
   Heart,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Gift
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,7 @@ interface DashboardSidebarProps {
 const menuItems = [
   { icon: Home, label: "Home", path: "/dashboard" },
   { icon: Sparkles, label: "Discover Procedures", path: "/dashboard/discover" },
+  { icon: Gift, label: "Benefits", path: "/dashboard/benefits" },
   { icon: MessageCircle, label: "My Concierge", path: "/dashboard/concierge" },
   { icon: Calendar, label: "Bookings", path: "/dashboard/bookings" },
   { icon: Heart, label: "Aftercare", path: "/dashboard/aftercare" },
