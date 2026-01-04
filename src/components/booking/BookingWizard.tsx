@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { format, addDays, isSameDay } from "date-fns";
 import { Calendar, Clock, MapPin, Star, Check, Shield, ChevronRight, ChevronLeft, Video, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -104,17 +105,30 @@ const BookingWizard = ({
 
       if (bookingError) throw bookingError;
 
-      // Create confirmation call task (due in 24 hours)
-      const dueAt = addDays(new Date(), 1);
-      await supabase.from("tasks").insert({
-        user_id: user.id,
-        booking_id: booking.id,
-        type: "confirmation_call",
-        title: `Confirmation call for ${procedureName}`,
-        description: `Follow up with client regarding their ${procedureName} booking with ${provider.display_name}`,
-        due_at: dueAt.toISOString(),
-        status: "pending",
-      });
+      // Create CRM tasks
+      const confirmationDue = addDays(new Date(), 1);
+      const followUpDue = addDays(selectedDate, 14); // 14 days post-treatment
+
+      await supabase.from("tasks").insert([
+        {
+          user_id: user.id,
+          booking_id: booking.id,
+          type: "confirmation_call",
+          title: `Confirmation call for ${procedureName}`,
+          description: `Follow up with client regarding their ${procedureName} booking with ${provider.display_name}. Confirm appointment details and answer any questions.`,
+          due_at: confirmationDue.toISOString(),
+          status: "pending",
+        },
+        {
+          user_id: user.id,
+          booking_id: booking.id,
+          type: "follow_up_call",
+          title: `Post-treatment follow-up for ${procedureName}`,
+          description: `Check in with client after their ${procedureName} treatment. Assess satisfaction, address any concerns, and discuss maintenance options.`,
+          due_at: followUpDue.toISOString(),
+          status: "pending",
+        },
+      ]);
 
       setIsSuccess(true);
     } catch (error) {
@@ -124,15 +138,21 @@ const BookingWizard = ({
     }
   };
 
-  const handleClose = () => {
+  const navigate = useNavigate();
+
+  const handleClose = (goToBookings = false) => {
     setStep(1);
     setSelectedDate(undefined);
     setSelectedTime("");
     setWantsVirtualConsult(false);
     setConsultDate(undefined);
     setConsultTime("");
+    const wasSuccess = isSuccess;
     setIsSuccess(false);
     onClose();
+    if (wasSuccess || goToBookings) {
+      navigate("/dashboard/bookings");
+    }
   };
 
   const renderStars = (rating: number) => (
@@ -155,30 +175,96 @@ const BookingWizard = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="max-w-lg w-[95vw] max-h-[90vh] overflow-y-auto bg-[hsl(230_20%_10%)] border-glass-border p-0">
         {isSuccess ? (
-          // Success Screen
-          <div className="p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
-              <Check className="w-8 h-8 text-primary" />
+          // Premium Success Screen
+          <div className="p-8 text-center relative overflow-hidden">
+            {/* Animated glow background */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+              <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "0.5s" }} />
+              <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-primary/15 rounded-full blur-xl animate-pulse" style={{ animationDelay: "1s" }} />
             </div>
-            <h2 className="font-serif text-2xl font-medium text-foreground mb-3">
-              Reservation Secured
-            </h2>
-            <p className="text-muted-foreground mb-6 leading-relaxed">
-              Your priority reservation has been confirmed. Our concierge team will reach out within 24 hours to finalize the details.
-            </p>
-            <div className="glass-card p-4 mb-6 text-left">
-              <div className="text-sm text-muted-foreground mb-1">Appointment</div>
-              <div className="font-medium text-foreground">
-                {selectedDate && format(selectedDate, "EEEE, MMMM d, yyyy")}
-                {selectedTime && ` at ${selectedTime}`}
-              </div>
-              <div className="text-sm text-muted-foreground mt-2">
-                {procedureName} with {provider.display_name}
-              </div>
+
+            {/* Confetti-like particles */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              {[...Array(12)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-1.5 h-1.5 rounded-full bg-primary/60"
+                  style={{
+                    left: `${15 + (i * 7)}%`,
+                    top: "-10px",
+                    animation: `confetti-fall 3s ease-out ${i * 0.1}s forwards`,
+                  }}
+                />
+              ))}
             </div>
-            <Button variant="velvet" onClick={handleClose} className="w-full">
-              Done
-            </Button>
+
+            <div className="relative z-10 fade-up">
+              {/* Success icon with glow ring */}
+              <div className="relative w-20 h-20 mx-auto mb-6">
+                <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" style={{ animationDuration: "2s" }} />
+                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center border border-primary/30">
+                  <Check className="w-10 h-10 text-primary" />
+                </div>
+              </div>
+
+              <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground mb-3">
+                Your Priority Slot is Reserved
+              </h2>
+              <p className="text-muted-foreground mb-8 leading-relaxed max-w-sm mx-auto">
+                Our concierge team will reach out within 24 hours to finalize your appointment details.
+              </p>
+
+              {/* Summary card */}
+              <div className="glass-card p-5 mb-6 text-left space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Calendar className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Appointment</div>
+                    <div className="font-medium text-foreground">
+                      {selectedDate && format(selectedDate, "EEEE, MMMM d, yyyy")}
+                      {selectedTime && ` at ${selectedTime}`}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Treatment</div>
+                    <div className="font-medium text-foreground">{procedureName}</div>
+                    <div className="text-sm text-muted-foreground">with {provider.display_name}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Next steps */}
+              <div className="text-left mb-6 p-4 rounded-xl bg-muted/30 border border-glass-border">
+                <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">What's next</div>
+                <ul className="space-y-2 text-sm text-foreground">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-primary" />
+                    Confirmation call within 24 hours
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-primary" />
+                    Pre-appointment guidance email
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-primary" />
+                    Dedicated aftercare support
+                  </li>
+                </ul>
+              </div>
+
+              <Button variant="velvet" onClick={() => handleClose(true)} className="w-full group">
+                View My Bookings
+                <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </div>
           </div>
         ) : (
           <>
