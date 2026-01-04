@@ -13,6 +13,7 @@ import NotFound from "./pages/NotFound";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardHome from "@/pages/dashboard/DashboardHome";
 import DiscoverPage from "@/pages/dashboard/DiscoverPage";
+import ProcedureDetailPage from "@/pages/dashboard/ProcedureDetailPage";
 import ConciergePage from "@/pages/dashboard/ConciergePage";
 import BookingsPage from "@/pages/dashboard/BookingsPage";
 import AftercarePage from "@/pages/dashboard/AftercarePage";
@@ -43,6 +44,7 @@ const App = () => (
             >
               <Route index element={<DashboardHome />} />
               <Route path="discover" element={<DiscoverPage />} />
+              <Route path="discover/:slug" element={<ProcedureDetailPage />} />
               <Route path="concierge" element={<ConciergePage />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="aftercare" element={<AftercarePage />} />
