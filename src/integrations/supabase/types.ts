@@ -209,6 +209,7 @@ export type Database = {
       }
       providers: {
         Row: {
+          base_price: number | null
           city: string
           created_at: string
           display_name: string
@@ -227,6 +228,7 @@ export type Database = {
           years_experience: number | null
         }
         Insert: {
+          base_price?: number | null
           city: string
           created_at?: string
           display_name: string
@@ -245,6 +247,7 @@ export type Database = {
           years_experience?: number | null
         }
         Update: {
+          base_price?: number | null
           city?: string
           created_at?: string
           display_name?: string
