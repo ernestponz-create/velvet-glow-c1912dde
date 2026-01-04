@@ -203,18 +203,7 @@ const QuickBookPage = () => {
         </p>
       </div>
 
-      {/* Procedure Selector */}
       <div className="mb-12">
-        <div className="relative max-w-md mx-auto mb-6">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search treatments..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-card/50 border-primary/20 focus:border-primary/50"
-          />
-        </div>
-        
         <div className="flex flex-wrap justify-center gap-3">
           {filteredProcedures.map((proc) => {
             const isSelected = selectedProcedure === proc.slug;
