@@ -2,11 +2,11 @@ import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
-import { Star, MapPin, X, Check, ArrowRight, Sparkles, Tag, Clock } from "lucide-react";
+import { Star, MapPin, X, Check, ArrowRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPriceRange, getConciergePrice } from "@/lib/pricing";
 import QuickBookModal from "@/components/booking/QuickBookModal";
-
+import { ProviderCard } from "@/components/discover/ProviderCard";
 interface Provider {
   id: string;
   name: string;
@@ -20,6 +20,7 @@ interface Provider {
   recommendation_reason: string | null;
   image_url: string | null;
   next_available_date: string | null;
+  next_available_time: string | null;
 }
 
 interface PastBooking {
@@ -275,95 +276,17 @@ const QuickBookPage = () => {
                   const isClosestAppointment = provider.id === closestAppointmentId;
                   
                   return (
-                  <div
-                    key={provider.id}
-                    className={`
-                      glass-card p-5 border-primary/10 transition-all duration-300 overflow-hidden
-                      hover:border-primary/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.15)]
-                      ${selectedForCompare.has(provider.id) ? "ring-2 ring-primary" : ""}
-                    `}
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <h3 className="font-medium text-lg">{provider.display_name}</h3>
-                        </div>
-                        <div className="flex items-center gap-1.5 flex-wrap mt-2">
-                          {isConciergePick && (
-                            <span className="px-2 py-0.5 rounded-full bg-primary/15 text-primary text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1">
-                              <Sparkles className="w-2.5 h-2.5" />
-                              Concierge's Pick
-                            </span>
-                          )}
-                          {isLowestPrice && (
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1">
-                              <Tag className="w-2.5 h-2.5" />
-                              Lowest Price
-                            </span>
-                          )}
-                          {isClosestAppointment && (
-                            <span className="px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1">
-                              <Clock className="w-2.5 h-2.5" />
-                              Soonest Available
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">{provider.specialty}</p>
-                      </div>
-                      <button
-                        onClick={() => toggleCompare(provider.id)}
-                        className={`
-                          w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all
-                          ${selectedForCompare.has(provider.id) 
-                            ? "bg-primary border-primary text-primary-foreground" 
-                            : "border-muted-foreground/30 hover:border-primary/50"
-                          }
-                        `}
-                      >
-                        {selectedForCompare.has(provider.id) && <Check className="w-3 h-3" />}
-                      </button>
-                    </div>
-                    
-                    <div className="flex flex-wrap items-center gap-3 mb-3">
-                      {renderStars(Number(provider.rating))}
-                      <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                        {formatPriceRange(selectedProcedure || "botox")}
-                      </span>
-                      <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <MapPin className="w-3.5 h-3.5" />
-                        {provider.neighborhood}
-                      </span>
-                    </div>
-                    
-                    {provider.next_available_date && (
-                      <div className="flex items-center gap-2 mb-3 text-sm">
-                        <Clock className="w-3.5 h-3.5 text-primary" />
-                        <span className="text-muted-foreground">Next slot:</span>
-                        <span className="text-foreground font-medium">
-                          {new Date(provider.next_available_date).toLocaleDateString("en-GB", {
-                            weekday: "short",
-                            day: "numeric",
-                            month: "short"
-                          })}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {provider.recommendation_reason && (
-                      <p className="text-sm text-muted-foreground italic mb-4">
-                        "{provider.recommendation_reason}"
-                      </p>
-                    )}
-                    
-                    <Button 
-                      variant="velvet" 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => setBookingModal({ isOpen: true, provider })}
-                    >
-                      Book Now
-                    </Button>
-                  </div>
+                    <ProviderCard
+                      key={provider.id}
+                      provider={provider}
+                      priceDisplay={formatPriceRange(selectedProcedure || "botox")}
+                      isConciergePick={isConciergePick}
+                      isBestValue={isLowestPrice}
+                      isSoonestAvailable={isClosestAppointment}
+                      isSelected={selectedForCompare.has(provider.id)}
+                      onToggleSelect={() => toggleCompare(provider.id)}
+                      onBook={() => setBookingModal({ isOpen: true, provider })}
+                    />
                   );
                 })}
               </div>
