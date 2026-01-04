@@ -243,14 +243,6 @@ const QuickBookPage = () => {
           })}
         </div>
       </div>
-
-      {/* Hero */}
-      <div className="text-center py-8 md:py-12 mb-8">
-        <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight">
-          Book or <span className="text-gradient italic">Rebook</span> Your Treatment
-        </h1>
-      </div>
-
       {/* Main Content */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
