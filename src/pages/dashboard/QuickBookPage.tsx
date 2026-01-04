@@ -157,10 +157,14 @@ const QuickBookPage = () => {
     };
   }, [filteredProviders]);
 
-  // Filter past bookings by selected procedure
+  // Get only the most recent past booking for selected procedure
   const filteredPastBookings = useMemo(() => {
-    if (!selectedProcedure) return pastBookings;
-    return pastBookings.filter((b) => b.procedure_slug === selectedProcedure);
+    const bookingsToFilter = selectedProcedure 
+      ? pastBookings.filter((b) => b.procedure_slug === selectedProcedure)
+      : pastBookings;
+    
+    // Return only the most recent one
+    return bookingsToFilter.slice(0, 1);
   }, [pastBookings, selectedProcedure]);
 
   // Get items for comparison
