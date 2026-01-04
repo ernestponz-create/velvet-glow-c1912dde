@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          consult_preferred_date: string | null
+          consult_preferred_time: string | null
+          created_at: string
+          id: string
+          investment_level: string
+          notes: string | null
+          preferred_date: string
+          preferred_time: string | null
+          procedure_name: string
+          procedure_slug: string
+          provider_id: string
+          status: string
+          updated_at: string
+          user_id: string
+          wants_virtual_consult: boolean | null
+        }
+        Insert: {
+          consult_preferred_date?: string | null
+          consult_preferred_time?: string | null
+          created_at?: string
+          id?: string
+          investment_level: string
+          notes?: string | null
+          preferred_date: string
+          preferred_time?: string | null
+          procedure_name: string
+          procedure_slug: string
+          provider_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          wants_virtual_consult?: boolean | null
+        }
+        Update: {
+          consult_preferred_date?: string | null
+          consult_preferred_time?: string | null
+          created_at?: string
+          id?: string
+          investment_level?: string
+          notes?: string | null
+          preferred_date?: string
+          preferred_time?: string | null
+          procedure_name?: string
+          procedure_slug?: string
+          provider_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          wants_virtual_consult?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       procedures: {
         Row: {
           benefit_phrase: string
@@ -160,6 +222,56 @@ export type Database = {
           years_experience?: number | null
         }
         Relationships: []
+      }
+      tasks: {
+        Row: {
+          booking_id: string | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_at: string
+          id: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_at: string
+          id?: string
+          status?: string
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_at?: string
+          id?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

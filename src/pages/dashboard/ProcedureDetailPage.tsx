@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import BookingWizard from "@/components/booking/BookingWizard";
 
 interface Procedure {
   id: string;
@@ -74,6 +75,18 @@ const ProcedureDetailPage = () => {
   const [procedure, setProcedure] = useState<Procedure | null>(null);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+
+  const handleBookClick = (provider: Provider) => {
+    setSelectedProvider(provider);
+    setIsBookingOpen(true);
+  };
+
+  const handleBookingClose = () => {
+    setIsBookingOpen(false);
+    setSelectedProvider(null);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -283,6 +296,7 @@ const ProcedureDetailPage = () => {
                   variant="velvet"
                   size="sm"
                   className="w-full group"
+                  onClick={() => handleBookClick(provider)}
                 >
                   Book Priority Slot
                   <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -440,6 +454,18 @@ const ProcedureDetailPage = () => {
           </Link>
         </div>
       </div>
+
+      {/* Booking Wizard */}
+      {procedure && (
+        <BookingWizard
+          isOpen={isBookingOpen}
+          onClose={handleBookingClose}
+          provider={selectedProvider}
+          procedureSlug={procedure.slug}
+          procedureName={procedure.name}
+          investmentLevel={procedure.investment_level}
+        />
+      )}
     </div>
   );
 };
