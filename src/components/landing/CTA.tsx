@@ -23,7 +23,7 @@ const CTA = () => {
             Join our private community of discerning individuals who expect nothing 
             less than perfection. Your consultation begins with a single step.
           </p>
-          <Link to="/dashboard">
+          <Link to="/onboarding">
             <Button variant="velvet" size="xl" className="group">
               Request Private Consultation
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

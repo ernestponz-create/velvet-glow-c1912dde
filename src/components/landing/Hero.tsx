@@ -34,7 +34,7 @@ const Hero = () => {
           
           {/* CTA */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/dashboard">
+            <Link to="/onboarding">
               <Button variant="velvet" size="xl" className="group">
                 Request Private Consultation
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
