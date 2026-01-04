@@ -12,7 +12,7 @@ const DashboardHome = () => {
       title: "Book Consultation", 
       desc: "Schedule your next appointment",
       icon: Calendar,
-      href: "/dashboard/discover",
+      href: "/dashboard/quick-book",
       isExternal: false
     },
     { 
