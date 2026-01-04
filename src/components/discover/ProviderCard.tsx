@@ -25,8 +25,6 @@ interface ProviderCardProps {
   isConciergePick?: boolean;
   isBestValue?: boolean;
   isSoonestAvailable?: boolean;
-  isSelected?: boolean;
-  onToggleSelect?: () => void;
   onBook: () => void;
   procedureSlug?: string;
 }
@@ -52,17 +50,18 @@ export const ProviderCard = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const galleryImages = getGalleryImages(provider.id);
+  const hasBadge = isConciergePick || isBestValue || isSoonestAvailable;
 
   const renderStars = (rating: number) => {
     const fullStars = Math.floor(rating);
     const hasHalf = rating % 1 >= 0.5;
     
     return (
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5">
         {[...Array(5)].map((_, i) => (
           <Star
             key={i}
-            className={`w-3.5 h-3.5 ${
+            className={`w-3 h-3 ${
               i < fullStars
                 ? "fill-[#d4af37] text-[#d4af37]"
                 : i === fullStars && hasHalf
@@ -71,7 +70,7 @@ export const ProviderCard = ({
             }`}
           />
         ))}
-        <span className="text-white text-sm ml-1">{rating.toFixed(1)}</span>
+        <span className="text-white/90 text-xs ml-1.5 font-medium">{rating.toFixed(1)}</span>
       </div>
     );
   };
@@ -92,149 +91,147 @@ export const ProviderCard = ({
     setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
   };
 
+  const getBadgeConfig = () => {
+    if (isConciergePick) {
+      return {
+        icon: "⭐",
+        label: "Concierge Pick",
+        style: {
+          background: "linear-gradient(90deg, #d4af37 0%, #c9a961 100%)",
+          color: "#1a1a1a",
+        }
+      };
+    }
+    if (isBestValue) {
+      return {
+        icon: "💎",
+        label: "Best Value",
+        style: {
+          background: "linear-gradient(90deg, #5eead4 0%, #2dd4bf 100%)",
+          color: "#1a1a1a",
+        }
+      };
+    }
+    if (isSoonestAvailable) {
+      return {
+        icon: "⚡",
+        label: "Soonest",
+        style: {
+          background: "linear-gradient(90deg, #38bdf8 0%, #0ea5e9 100%)",
+          color: "#1a1a1a",
+        }
+      };
+    }
+    return null;
+  };
+
+  const badge = getBadgeConfig();
+
   return (
     <>
       <div
-        className="relative overflow-hidden rounded-[20px] p-7 md:p-8 transition-all duration-300 hover:scale-[1.01] group"
+        className="relative overflow-hidden rounded-2xl transition-all duration-300 hover:translate-y-[-2px] group"
         style={{
-          background: "linear-gradient(135deg, rgba(40,40,45,0.6) 0%, rgba(30,30,35,0.6) 100%)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          backdropFilter: "blur(20px)",
+          background: "linear-gradient(145deg, rgba(35,35,40,0.9) 0%, rgba(25,25,30,0.95) 100%)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)",
         }}
       >
-        {/* Left Edge Badge */}
-        {isConciergePick && (
+        {/* Top Badge Bar */}
+        {badge && (
           <div 
-            className="absolute left-0 top-6 flex items-center gap-1.5 px-3 py-1.5 rounded-r-full text-[11px] font-medium font-serif"
-            style={{
-              background: "linear-gradient(90deg, rgba(201,169,97,0.3) 0%, rgba(212,175,55,0.2) 100%)",
-              borderTop: "1px solid rgba(201,169,97,0.5)",
-              borderRight: "1px solid rgba(201,169,97,0.5)",
-              borderBottom: "1px solid rgba(201,169,97,0.5)",
-              color: "#d4af37",
-              boxShadow: "0 2px 8px rgba(201,169,97,0.2)",
-            }}
+            className="flex items-center gap-1.5 px-4 py-2 text-[11px] font-semibold tracking-wide uppercase"
+            style={badge.style}
           >
-            <span>⭐</span>
-            Concierge Pick
+            <span className="text-sm">{badge.icon}</span>
+            {badge.label}
           </div>
         )}
-        {isBestValue && !isConciergePick && (
-          <div 
-            className="absolute left-0 top-6 flex items-center gap-1.5 px-3 py-1.5 rounded-r-full text-[11px] font-medium"
-            style={{
-              background: "linear-gradient(90deg, rgba(94,234,212,0.25) 0%, rgba(45,212,191,0.15) 100%)",
-              borderTop: "1px solid rgba(94,234,212,0.5)",
-              borderRight: "1px solid rgba(94,234,212,0.5)",
-              borderBottom: "1px solid rgba(94,234,212,0.5)",
-              color: "#5eead4",
-              boxShadow: "0 2px 8px rgba(94,234,212,0.15)",
-            }}
-          >
-            <span>💎</span>
-            Best Value
+
+        {/* Card Content */}
+        <div className={`p-5 md:p-6 ${!hasBadge ? 'pt-6 md:pt-7' : ''}`}>
+          {/* Header: Name + Gallery */}
+          <div className="flex justify-between items-start gap-3 mb-3">
+            <div className="flex-1 min-w-0">
+              <Link 
+                to={procedureSlug ? `/dashboard/discover/${procedureSlug}` : "#"}
+                className="block text-lg md:text-xl font-semibold text-white leading-snug hover:text-[#d4af37] transition-colors truncate"
+              >
+                {provider.display_name}
+              </Link>
+              <span 
+                className="inline-block mt-1.5 text-[11px] uppercase tracking-wider font-medium"
+                style={{ color: "rgba(255,255,255,0.45)" }}
+              >
+                {provider.specialty}
+              </span>
+            </div>
+            
+            <button
+              onClick={() => setIsGalleryOpen(true)}
+              className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all
+                bg-white/5 hover:bg-[#d4af37]/20 border border-white/10 hover:border-[#d4af37]/40"
+              aria-label="View gallery"
+            >
+              <Images className="w-4 h-4 text-white/60" />
+            </button>
           </div>
-        )}
-        {isSoonestAvailable && !isBestValue && !isConciergePick && (
-          <div 
-            className="absolute left-0 top-6 flex items-center gap-1.5 px-3 py-1.5 rounded-r-full text-[11px] font-medium"
-            style={{
-              background: "linear-gradient(90deg, rgba(56,189,248,0.25) 0%, rgba(14,165,233,0.15) 100%)",
-              borderTop: "1px solid rgba(56,189,248,0.5)",
-              borderRight: "1px solid rgba(56,189,248,0.5)",
-              borderBottom: "1px solid rgba(56,189,248,0.5)",
-              color: "#38bdf8",
-              boxShadow: "0 2px 8px rgba(56,189,248,0.15)",
-            }}
-          >
-            <span>⚡</span>
-            Soonest Available
-          </div>
-        )}
-        {/* Header Row */}
-        <div className="flex justify-between items-start mb-4">
-          <Link 
-            to={procedureSlug ? `/dashboard/discover/${procedureSlug}` : "#"}
-            className="text-[22px] md:text-[24px] font-semibold text-white leading-tight hover:text-[#d4af37] transition-colors story-link"
-          >
-            {provider.display_name}
-          </Link>
-          
-          {/* Gallery Button */}
-          <button
-            onClick={() => setIsGalleryOpen(true)}
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-all
-              bg-white/5 border border-white/10 hover:bg-[#d4af37]/20 hover:border-[#d4af37]/40"
-            aria-label="View gallery"
-          >
-            <Images className="w-4 h-4 text-white/70" />
-          </button>
-        </div>
 
-        {/* Specialty Tag */}
-        <div className="mb-5">
-          <span 
-            className="inline-block px-3 py-1 rounded-full text-xs"
-            style={{ 
-              background: "rgba(255,255,255,0.06)",
-              color: "rgba(255,255,255,0.6)" 
-            }}
-          >
-            {provider.specialty}
-          </span>
-        </div>
-
-        {/* Info Row */}
-        <div className="flex flex-wrap items-center gap-4 md:gap-6 mb-5">
-          {renderStars(Number(provider.rating))}
-          
-          <span style={{ color: "#d4af37" }} className="text-sm font-medium">
-            {priceDisplay}
-          </span>
-          
-          <span 
-            className="flex items-center gap-1.5 text-sm"
-            style={{ color: "rgba(255,255,255,0.6)" }}
-          >
-            <MapPin className="w-3.5 h-3.5" />
-            {provider.neighborhood}
-          </span>
-        </div>
-
-        {/* Availability */}
-        {provider.next_available_date && (
-          <div 
-            className="flex items-center gap-2 mb-5 text-sm"
-            style={{ color: "rgba(255,255,255,0.6)" }}
-          >
-            <Clock className="w-3.5 h-3.5" />
-            <span>Next slot:</span>
-            <span className="text-white">
-              {formatNextSlot(provider.next_available_date)}
+          {/* Stats Row */}
+          <div className="flex items-center gap-3 mb-4 flex-wrap">
+            {renderStars(Number(provider.rating))}
+            
+            <div className="w-px h-3 bg-white/10" />
+            
+            <span className="text-[#d4af37] text-sm font-semibold">
+              {priceDisplay}
+            </span>
+            
+            <div className="w-px h-3 bg-white/10" />
+            
+            <span className="flex items-center gap-1 text-xs text-white/50">
+              <MapPin className="w-3 h-3" />
+              {provider.neighborhood}
             </span>
           </div>
-        )}
 
-        {/* Quote */}
-        {provider.recommendation_reason && (
-          <p 
-            className="font-serif italic text-[12px] md:text-[13px] mb-6 mt-4"
-            style={{ color: "rgba(201,169,97,0.6)" }}
+          {/* Next Slot */}
+          {provider.next_available_date && (
+            <div 
+              className="flex items-center gap-2 px-3 py-2 rounded-lg mb-4"
+              style={{ background: "rgba(255,255,255,0.03)" }}
+            >
+              <Clock className="w-3.5 h-3.5 text-[#d4af37]" />
+              <span className="text-xs text-white/50">Next:</span>
+              <span className="text-xs text-white font-medium">
+                {formatNextSlot(provider.next_available_date)}
+              </span>
+            </div>
+          )}
+
+          {/* Quote */}
+          {provider.recommendation_reason && (
+            <p 
+              className="text-[12px] italic leading-relaxed mb-4 pl-3 border-l-2"
+              style={{ 
+                color: "rgba(212,175,55,0.7)",
+                borderColor: "rgba(212,175,55,0.3)",
+              }}
+            >
+              "{provider.recommendation_reason}"
+            </p>
+          )}
+
+          {/* CTA Button */}
+          <Button 
+            className="w-full h-11 rounded-xl text-sm font-semibold transition-all duration-300
+              bg-gradient-to-r from-[#d4af37] to-[#c9a961] text-black
+              hover:from-[#e5c04a] hover:to-[#d4b872] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]"
+            onClick={onBook}
           >
-            "{provider.recommendation_reason}"
-          </p>
-        )}
-
-        {/* CTA Button */}
-        <Button 
-          variant="outline"
-          className="w-full h-12 rounded-xl text-sm font-medium transition-all duration-300 relative z-10
-            bg-transparent border-[#d4af37]/60 text-[#d4af37]
-            hover:bg-gradient-to-r hover:from-[#d4af37] hover:to-[#c9a961] hover:text-black hover:border-transparent"
-          onClick={onBook}
-        >
-          Book Now
-        </Button>
+            Book Now
+          </Button>
+        </div>
       </div>
 
       {/* Gallery Modal */}
