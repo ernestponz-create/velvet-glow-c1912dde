@@ -283,8 +283,6 @@ const QuickBookPage = () => {
                       isConciergePick={isConciergePick}
                       isBestValue={isLowestPrice}
                       isSoonestAvailable={isClosestAppointment}
-                      isSelected={selectedForCompare.has(provider.id)}
-                      onToggleSelect={() => toggleCompare(provider.id)}
                       onBook={() => setBookingModal({ isOpen: true, provider })}
                     />
                   );
