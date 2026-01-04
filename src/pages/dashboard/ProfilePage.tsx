@@ -1,17 +1,56 @@
-import { User, LogOut } from "lucide-react";
+import { useState } from "react";
+import { User, LogOut, Pencil } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import EditPreferencesModal from "@/components/profile/EditPreferencesModal";
 
 const ProfilePage = () => {
-  const { profile, user, signOut } = useAuth();
+  const { profile, user, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+  };
+
+  const handleSavePreferences = async (preferences: {
+    ageRange: string;
+    concerns: string[];
+    location: string;
+    budget: string;
+  }) => {
+    if (!user) return;
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          age_range: preferences.ageRange,
+          main_concerns: preferences.concerns,
+          location_city: preferences.location,
+          budget_tier: preferences.budget,
+        })
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      await refreshProfile();
+      setEditModalOpen(false);
+      toast.success("Preferences updated successfully");
+    } catch (error) {
+      console.error("Error updating preferences:", error);
+      toast.error("Failed to update preferences");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "Guest";
@@ -32,9 +71,18 @@ const ProfilePage = () => {
         </div>
 
         <div className="glass-card p-4 space-y-3">
-          <h2 className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
-            Your Preferences
-          </h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xs uppercase tracking-wider text-muted-foreground">
+              Your Preferences
+            </h2>
+            <button
+              onClick={() => setEditModalOpen(true)}
+              className="flex items-center gap-1 text-xs text-primary"
+            >
+              <Pencil className="w-3 h-3" />
+              Edit
+            </button>
+          </div>
           
           {profile?.age_range && (
             <div className="flex justify-between py-2 border-b border-border/50">
@@ -85,6 +133,19 @@ const ProfilePage = () => {
             Sign Out
           </Button>
         </div>
+
+        <EditPreferencesModal
+          open={editModalOpen}
+          onOpenChange={setEditModalOpen}
+          currentPreferences={{
+            ageRange: profile?.age_range || "",
+            concerns: profile?.main_concerns || [],
+            location: profile?.location_city || "",
+            budget: profile?.budget_tier || "",
+          }}
+          onSave={handleSavePreferences}
+          isLoading={isSaving}
+        />
       </div>
     );
   }
@@ -103,9 +164,20 @@ const ProfilePage = () => {
       </div>
 
       <div className="glass-card p-6 space-y-4">
-        <h2 className="text-sm uppercase tracking-wider text-muted-foreground mb-4">
-          Your Preferences
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm uppercase tracking-wider text-muted-foreground">
+            Your Preferences
+          </h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setEditModalOpen(true)}
+            className="text-primary hover:text-primary/80"
+          >
+            <Pencil className="w-4 h-4 mr-1" />
+            Edit
+          </Button>
+        </div>
         
         {profile?.age_range && (
           <div className="flex justify-between py-3 border-b border-border/50">
@@ -156,6 +228,19 @@ const ProfilePage = () => {
           Sign Out
         </Button>
       </div>
+
+      <EditPreferencesModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        currentPreferences={{
+          ageRange: profile?.age_range || "",
+          concerns: profile?.main_concerns || [],
+          location: profile?.location_city || "",
+          budget: profile?.budget_tier || "",
+        }}
+        onSave={handleSavePreferences}
+        isLoading={isSaving}
+      />
     </div>
   );
 };
