@@ -353,9 +353,11 @@ const QuickBookPage = () => {
                     
                     <div className="flex flex-wrap items-center gap-3 mb-3">
                       {booking.provider && renderStars(Number(booking.provider.rating))}
-                      <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                        {formatPriceRange(booking.procedure_slug)}
-                      </span>
+                      {booking.provider?.base_price && (
+                        <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                          £{booking.provider.base_price.toLocaleString()}
+                        </span>
+                      )}
                       {booking.provider && (
                         <span className="flex items-center gap-1 text-sm text-muted-foreground">
                           <MapPin className="w-3.5 h-3.5" />
@@ -364,13 +366,25 @@ const QuickBookPage = () => {
                       )}
                     </div>
                     
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Last visited: {new Date(booking.preferred_date).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric"
-                      })}
-                    </p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mb-4">
+                      <span>
+                        Last visited: {new Date(booking.preferred_date).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric"
+                        })}
+                      </span>
+                      {booking.provider?.next_available_date && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          Next: {new Date(booking.provider.next_available_date).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short"
+                          })}
+                          {booking.provider.next_available_time && ` at ${booking.provider.next_available_time.slice(0, 5)}`}
+                        </span>
+                      )}
+                    </div>
                     
                     <Button 
                       variant="velvet" 
