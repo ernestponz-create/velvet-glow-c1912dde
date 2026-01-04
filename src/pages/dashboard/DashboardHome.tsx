@@ -26,7 +26,7 @@ const DashboardHome = () => {
       title: "Contact Concierge", 
       desc: "24/7 WhatsApp support",
       icon: MessageCircle,
-      href: "https://wa.me/1234567890",
+      href: "https://wa.me/972527496676",
       isExternal: true
     },
   ];
