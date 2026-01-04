@@ -17,7 +17,7 @@ const CTA = () => {
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight mb-6">
             Ready to Experience
             <br />
-            <span className="italic text-gradient">Velvet Excellence?</span>
+            <span className="italic text-gradient">DermicaIQ Excellence?</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-10 leading-relaxed">
             Join our private community of discerning individuals who expect nothing 

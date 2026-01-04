@@ -8,7 +8,7 @@ const Footer = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <span className="font-serif text-xl font-medium tracking-tight text-foreground">
-              Velvet<span className="text-primary">.</span>
+              Dermica<span className="text-primary">IQ</span>
             </span>
           </Link>
 
@@ -27,7 +27,7 @@ const Footer = () => {
 
           {/* Copyright */}
           <p className="text-xs text-muted-foreground/60">
-            © {new Date().getFullYear()} Velvet Concierge. All rights reserved.
+            © {new Date().getFullYear()} DermicaIQ. All rights reserved.
           </p>
         </div>
       </div>

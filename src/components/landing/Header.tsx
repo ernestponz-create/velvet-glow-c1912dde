@@ -9,7 +9,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <span className="font-serif text-xl md:text-2xl font-medium tracking-tight text-foreground">
-              Velvet<span className="text-primary">.</span>
+              Dermica<span className="text-primary">IQ</span>
             </span>
           </Link>
 

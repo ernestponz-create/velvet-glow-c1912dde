@@ -146,7 +146,7 @@ const Onboarding = () => {
       <header className="p-6">
         <Link to="/" className="flex items-center gap-2">
           <span className="font-serif text-xl font-medium tracking-tight text-foreground">
-            Velvet<span className="text-primary">.</span>
+            Dermica<span className="text-primary">IQ</span>
           </span>
         </Link>
       </header>
