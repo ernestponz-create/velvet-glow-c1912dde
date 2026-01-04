@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { MessageCircle, User, Menu, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import SavingsIndicator from "./SavingsIndicator";
 
 interface DashboardNavbarProps {
   onMobileMenuToggle: () => void;
@@ -42,6 +43,11 @@ const DashboardNavbar = ({ onMobileMenuToggle, isMobileMenuOpen }: DashboardNavb
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
+          {/* Savings indicator - desktop */}
+          <div className="hidden sm:block">
+            <SavingsIndicator />
+          </div>
+
           {/* Concierge chat */}
           <Link
             to="/dashboard/concierge"
