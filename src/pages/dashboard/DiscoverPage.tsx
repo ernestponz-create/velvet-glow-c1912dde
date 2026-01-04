@@ -6,6 +6,7 @@ import ProcedureCard from "@/components/discover/ProcedureCard";
 import ProcedureFilter from "@/components/discover/ProcedureFilter";
 import ConciergeSheet from "@/components/discover/ConciergeSheet";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Procedure {
   id: string;
@@ -46,6 +47,7 @@ const investmentOptions = [
 
 const DiscoverPage = () => {
   const { profile } = useAuth();
+  const isMobile = useIsMobile();
   const [procedures, setProcedures] = useState<Procedure[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -137,34 +139,39 @@ const DiscoverPage = () => {
   return (
     <div className="max-w-6xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-serif text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight mb-2">
+      <div className={isMobile ? "mb-4" : "mb-8"}>
+        <h1 className={`font-serif font-medium tracking-tight mb-1 ${isMobile ? "text-xl" : "text-2xl md:text-3xl lg:text-4xl mb-2"}`}>
           Discover Procedures
         </h1>
-        <p className="text-muted-foreground">
-          Explore our curated selection of premium aesthetic treatments
-          {profile?.location_city && (
-            <span className="text-foreground"> in {profile.location_city}</span>
+        <p className={`text-muted-foreground ${isMobile ? "text-sm" : ""}`}>
+          {isMobile ? "Explore premium aesthetic treatments" : (
+            <>
+              Explore our curated selection of premium aesthetic treatments
+              {profile?.location_city && (
+                <span className="text-foreground"> in {profile.location_city}</span>
+              )}
+            </>
           )}
         </p>
       </div>
 
       {/* Search & Filters */}
-      <div className="mb-8 space-y-4">
+      <div className={isMobile ? "mb-4 space-y-3" : "mb-8 space-y-4"}>
         {/* Search bar */}
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search treatments..."
-              className="w-full h-11 pl-11 pr-4 rounded-xl bg-glass/60 border border-glass-border backdrop-blur-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all text-sm"
+              className={`w-full pl-10 pr-4 rounded-xl bg-glass/60 border border-glass-border backdrop-blur-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all text-sm ${isMobile ? "h-10" : "h-11"}`}
             />
           </div>
           <Button
             variant="glass"
+            size={isMobile ? "default" : "default"}
             className="lg:hidden"
             onClick={() => setShowFilters(!showFilters)}
           >
@@ -206,33 +213,34 @@ const DiscoverPage = () => {
       </div>
 
       {/* Results count */}
-      <div className="mb-6">
-        <p className="text-sm text-muted-foreground">
-          {filteredProcedures.length} treatment{filteredProcedures.length !== 1 && "s"} available
+      <div className={isMobile ? "mb-3" : "mb-6"}>
+        <p className="text-xs text-muted-foreground">
+          {filteredProcedures.length} treatment{filteredProcedures.length !== 1 && "s"}
         </p>
       </div>
 
       {/* Procedures grid */}
       {isLoading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
+        <div className={`grid gap-4 ${isMobile ? "grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3 gap-6"}`}>
+          {[...Array(isMobile ? 4 : 6)].map((_, i) => (
             <div key={i} className="glass-card overflow-hidden animate-pulse">
               <div className="aspect-[4/3] bg-muted" />
-              <div className="p-5 space-y-3">
-                <div className="h-6 bg-muted rounded w-2/3" />
-                <div className="h-4 bg-muted rounded w-full" />
+              <div className="p-4 space-y-2">
+                <div className="h-5 bg-muted rounded w-2/3" />
+                <div className="h-3 bg-muted rounded w-full" />
               </div>
             </div>
           ))}
         </div>
       ) : filteredProcedures.length > 0 ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className={`grid gap-4 ${isMobile ? "grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3 gap-6"}`}>
           {filteredProcedures.map((procedure) => (
             <ProcedureCard
               key={procedure.id}
               procedure={procedure}
               isRecommended={isRecommended(procedure)}
               onClick={() => handleProcedureClick(procedure)}
+              compact={isMobile}
             />
           ))}
         </div>

@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Booking {
   id: string;
@@ -56,6 +57,7 @@ const statusColors: Record<string, { bg: string; text: string; label: string }> 
 
 const ConciergePage = () => {
   const { user, profile } = useAuth();
+  const isMobile = useIsMobile();
   const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
   const [recentProcedures, setRecentProcedures] = useState<string[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -150,45 +152,45 @@ const ConciergePage = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto space-y-6 animate-pulse">
-        <div className="h-32 bg-muted rounded-2xl" />
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="h-48 bg-muted rounded-2xl" />
-          <div className="h-48 bg-muted rounded-2xl" />
+      <div className={cn("mx-auto space-y-4 animate-pulse", isMobile ? "max-w-full" : "max-w-5xl space-y-6")}>
+        <div className={cn("bg-muted rounded-2xl", isMobile ? "h-24" : "h-32")} />
+        <div className={cn("grid gap-4", isMobile ? "grid-cols-1" : "md:grid-cols-2")}>
+          <div className={cn("bg-muted rounded-2xl", isMobile ? "h-32" : "h-48")} />
+          <div className={cn("bg-muted rounded-2xl", isMobile ? "h-32" : "h-48")} />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className={cn("mx-auto", isMobile ? "max-w-full space-y-4" : "max-w-5xl space-y-8")}>
       {/* Hero Section */}
-      <div className="glass-card p-6 md:p-8 relative overflow-hidden">
+      <div className={cn("glass-card relative overflow-hidden", isMobile ? "p-4" : "p-6 md:p-8")}>
         {/* Decorative glow */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         
         <div className="relative z-10">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className={cn("flex gap-4", isMobile ? "flex-col" : "flex-col md:flex-row md:items-center md:justify-between")}>
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Welcome back,</p>
-              <h1 className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-foreground">
+              <p className={cn("text-muted-foreground", isMobile ? "text-xs mb-0.5" : "text-sm mb-1")}>Welcome back,</p>
+              <h1 className={cn("font-serif font-medium tracking-tight text-foreground", isMobile ? "text-2xl" : "text-3xl md:text-4xl")}>
                 {displayName}
               </h1>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               {/* Member badge */}
-              <div className="px-4 py-2 rounded-full border border-glass-border bg-glass/40">
-                <span className="text-sm text-muted-foreground">
+              <div className={cn("rounded-full border border-glass-border bg-glass/40", isMobile ? "px-3 py-1" : "px-4 py-2")}>
+                <span className={cn("text-muted-foreground", isMobile ? "text-xs" : "text-sm")}>
                   Member since <span className="text-foreground font-medium">{memberSince}</span>
                 </span>
               </div>
 
               {/* Savings badge */}
               {savingsData && savingsData.totalSavings > 0 && (
-                <div className="px-4 py-2 rounded-full border border-primary/30 bg-primary/5 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium text-pearl">
+                <div className={cn("rounded-full border border-primary/30 bg-primary/5 flex items-center gap-1.5", isMobile ? "px-3 py-1" : "px-4 py-2 gap-2")}>
+                  <Sparkles className={cn("text-primary", isMobile ? "w-3 h-3" : "w-4 h-4")} />
+                  <span className={cn("font-medium text-pearl", isMobile ? "text-xs" : "text-sm")}>
                     {formatCurrency(savingsData.totalSavings)} saved
                   </span>
                 </div>
@@ -199,9 +201,9 @@ const ConciergePage = () => {
       </div>
 
       {/* Main Grid */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className={cn("grid gap-4", isMobile ? "grid-cols-1" : "lg:grid-cols-2 gap-6")}>
         {/* Upcoming Appointments */}
-        <div className="glass-card p-6">
+        <div className={cn("glass-card", isMobile ? "p-4" : "p-6")}>
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">

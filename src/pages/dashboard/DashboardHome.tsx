@@ -1,9 +1,11 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { Sparkles, Calendar, Search, MessageCircle } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const DashboardHome = () => {
   const { profile, user } = useAuth();
+  const isMobile = useIsMobile();
   
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "there";
 
@@ -31,6 +33,68 @@ const DashboardHome = () => {
     },
   ];
 
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="pt-2">
+        {/* Compact welcome */}
+        <div className="text-center py-8">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mx-auto mb-4 border border-primary/20">
+            <Sparkles className="w-6 h-6 text-primary" />
+          </div>
+          <h1 className="font-serif text-2xl font-medium tracking-tight mb-2">
+            Welcome, <span className="text-gradient italic">{displayName}</span>
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            How may we help you today?
+          </p>
+        </div>
+
+        {/* Quick actions - stacked cards */}
+        <div className="space-y-3">
+          {quickActions.map((action) => {
+            const CardContent = (
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <action.icon className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-foreground text-sm mb-0.5">
+                    {action.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">{action.desc}</p>
+                </div>
+              </div>
+            );
+
+            const cardClasses = "glass-card p-4 block border-primary/10 active:scale-[0.98] transition-transform";
+
+            if (action.isExternal) {
+              return (
+                <a
+                  key={action.title}
+                  href={action.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cardClasses}
+                >
+                  {CardContent}
+                </a>
+              );
+            }
+
+            return (
+              <Link key={action.title} to={action.href} className={cardClasses}>
+                {CardContent}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop Layout
   return (
     <div className="max-w-4xl mx-auto">
       {/* Welcome section */}

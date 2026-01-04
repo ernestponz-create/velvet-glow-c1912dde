@@ -6,6 +6,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { format, isPast, isToday, isTomorrow } from "date-fns";
 import FeedbackModal from "@/components/feedback/FeedbackModal";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface Booking {
   id: string;
@@ -34,14 +36,15 @@ const investmentLabels: Record<string, { label: string; range: string }> = {
 };
 
 const statusConfig: Record<string, { label: string; icon: typeof CheckCircle2; color: string }> = {
-  pending: { label: "Awaiting Confirmation", icon: Clock3, color: "text-amber-400" },
+  pending: { label: "Pending", icon: Clock3, color: "text-amber-400" },
   confirmed: { label: "Confirmed", icon: CheckCircle2, color: "text-emerald-400" },
-  completed: { label: "Completed", icon: CheckCircle2, color: "text-primary" },
+  completed: { label: "Done", icon: CheckCircle2, color: "text-primary" },
   cancelled: { label: "Cancelled", icon: XCircle, color: "text-muted-foreground" },
 };
 
 const BookingsPage = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [feedbackModal, setFeedbackModal] = useState<{
@@ -150,45 +153,45 @@ const BookingsPage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className={cn("mx-auto", isMobile ? "max-w-full" : "max-w-4xl")}>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-serif text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight mb-2">
+      <div className={cn(isMobile ? "mb-4" : "mb-8")}>
+        <h1 className={cn("font-serif font-medium tracking-tight", isMobile ? "text-xl mb-1" : "text-2xl md:text-3xl lg:text-4xl mb-2")}>
           My Bookings
         </h1>
-        <p className="text-muted-foreground">
-          Manage your upcoming appointments and view past treatments.
+        <p className={cn("text-muted-foreground", isMobile && "text-sm")}>
+          {isMobile ? "Your appointments" : "Manage your upcoming appointments and view past treatments."}
         </p>
       </div>
 
       {bookings.length === 0 ? (
-        <div className="glass-card p-12 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-            <Calendar className="w-8 h-8 text-primary" />
+        <div className={cn("glass-card text-center", isMobile ? "p-6" : "p-12")}>
+          <div className={cn("rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4", isMobile ? "w-12 h-12" : "w-16 h-16 mb-6")}>
+            <Calendar className={cn("text-primary", isMobile ? "w-6 h-6" : "w-8 h-8")} />
           </div>
-          <h2 className="font-serif text-xl font-medium text-foreground mb-3">
+          <h2 className={cn("font-serif font-medium text-foreground", isMobile ? "text-lg mb-2" : "text-xl mb-3")}>
             No Bookings Yet
           </h2>
-          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-            Start your aesthetic journey by exploring our curated selection of premium treatments.
+          <p className={cn("text-muted-foreground mb-4 max-w-sm mx-auto", isMobile && "text-sm")}>
+            {isMobile ? "Start your aesthetic journey" : "Start your aesthetic journey by exploring our curated selection of premium treatments."}
           </p>
           <Link to="/dashboard/discover">
-            <Button variant="velvet" className="group">
+            <Button variant="velvet" size={isMobile ? "sm" : "default"} className="group">
               Discover Procedures
               <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className={cn(isMobile ? "space-y-4" : "space-y-8")}>
           {/* Upcoming Bookings */}
           {upcomingBookings.length > 0 && (
             <section>
-              <h2 className="text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                Upcoming Appointments
+              <h2 className={cn("uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2", isMobile ? "text-xs" : "text-sm mb-4")}>
+                <Sparkles className={cn("text-primary", isMobile ? "w-3 h-3" : "w-4 h-4")} />
+                Upcoming
               </h2>
-              <div className="space-y-4 stagger-children">
+              <div className={cn(isMobile ? "space-y-3" : "space-y-4 stagger-children")}>
                 {upcomingBookings.map((booking, index) => {
                   const status = statusConfig[booking.status] || statusConfig.pending;
                   const StatusIcon = status.icon;
@@ -198,68 +201,68 @@ const BookingsPage = () => {
                   return (
                     <article
                       key={booking.id}
-                      className="glass-card p-6 transition-all duration-300 hover:border-primary/30 hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.15)]"
+                      className={cn("glass-card transition-all duration-300", isMobile ? "p-4" : "p-6 hover:border-primary/30 hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.15)]")}
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
-                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-serif text-xl font-medium text-foreground">
+                      <div className={cn("flex justify-between gap-2", isMobile ? "mb-2" : "flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4")}>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <h3 className={cn("font-serif font-medium text-foreground truncate", isMobile ? "text-base" : "text-xl")}>
                               {booking.procedure_name}
                             </h3>
                             {dateLabel === "today" && (
-                              <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-medium">
+                              <span className={cn("px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium flex-shrink-0", isMobile ? "text-[10px]" : "text-xs")}>
                                 Today
                               </span>
                             )}
                           </div>
                           {booking.provider && (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <MapPin className="w-3.5 h-3.5" />
-                              <span>
-                                {booking.provider.display_name} · {booking.provider.neighborhood}, {booking.provider.city}
+                            <div className={cn("flex items-center gap-1.5 text-muted-foreground", isMobile ? "text-xs" : "text-sm")}>
+                              <MapPin className="w-3 h-3 flex-shrink-0" />
+                              <span className="truncate">
+                                {isMobile ? booking.provider.display_name : `${booking.provider.display_name} · ${booking.provider.neighborhood}`}
                               </span>
                             </div>
                           )}
                         </div>
-                        <div className={`flex items-center gap-1.5 ${status.color}`}>
-                          <StatusIcon className="w-4 h-4" />
-                          <span className="text-sm font-medium">{status.label}</span>
+                        <div className={cn("flex items-center gap-1 flex-shrink-0", status.color)}>
+                          <StatusIcon className={cn(isMobile ? "w-3 h-3" : "w-4 h-4")} />
+                          <span className={cn("font-medium", isMobile ? "text-xs" : "text-sm")}>{status.label}</span>
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-4 mb-4">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-primary" />
-                          <span className="text-sm text-foreground">
+                      <div className={cn("flex flex-wrap gap-2", isMobile ? "mb-3" : "gap-4 mb-4")}>
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className={cn("text-primary", isMobile ? "w-3 h-3" : "w-4 h-4")} />
+                          <span className={cn("text-foreground", isMobile ? "text-xs" : "text-sm")}>
                             {formatDate(booking.preferred_date)}
                           </span>
                         </div>
                         {booking.preferred_time && (
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-primary" />
-                            <span className="text-sm text-foreground">{booking.preferred_time}</span>
+                          <div className="flex items-center gap-1.5">
+                            <Clock className={cn("text-primary", isMobile ? "w-3 h-3" : "w-4 h-4")} />
+                            <span className={cn("text-foreground", isMobile ? "text-xs" : "text-sm")}>{booking.preferred_time}</span>
                           </div>
                         )}
-                        {investment && (
+                        {investment && !isMobile && (
                           <div className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
                             {investment.label}
                           </div>
                         )}
                       </div>
 
-                      {booking.wants_virtual_consult && booking.consult_preferred_date && (
+                      {booking.wants_virtual_consult && booking.consult_preferred_date && !isMobile && (
                         <div className="text-sm text-muted-foreground mb-4 p-3 rounded-lg bg-muted/30">
-                          <span className="text-primary">Virtual consult requested:</span>{" "}
+                          <span className="text-primary">Virtual consult:</span>{" "}
                           {format(new Date(booking.consult_preferred_date), "MMM d")}
                           {booking.consult_preferred_time && ` at ${booking.consult_preferred_time}`}
                         </div>
                       )}
 
-                      <div className="flex gap-3">
+                      <div className="flex gap-2">
                         <Link to={`/dashboard/discover/${booking.procedure_slug}`}>
-                          <Button variant="glass" size="sm">
-                            View Details
+                          <Button variant="glass" size="sm" className={cn(isMobile && "text-xs h-7 px-2")}>
+                            Details
                           </Button>
                         </Link>
                       </div>
@@ -273,10 +276,10 @@ const BookingsPage = () => {
           {/* Past Bookings */}
           {pastBookings.length > 0 && (
             <section>
-              <h2 className="text-sm uppercase tracking-wider text-muted-foreground mb-4">
-                Past Appointments
+              <h2 className={cn("uppercase tracking-wider text-muted-foreground", isMobile ? "text-xs mb-2" : "text-sm mb-4")}>
+                Past
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {pastBookings.map((booking) => {
                   const status = statusConfig[booking.status] || statusConfig.pending;
                   const StatusIcon = status.icon;
@@ -286,23 +289,23 @@ const BookingsPage = () => {
                   return (
                     <article
                       key={booking.id}
-                      className="glass-card p-4"
+                      className={cn("glass-card", isMobile ? "p-3" : "p-4")}
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <div className="flex-1">
-                          <h3 className="font-medium text-foreground">
+                      <div className={cn("flex gap-2", isMobile ? "flex-col" : "flex-col sm:flex-row sm:items-center sm:justify-between gap-3")}>
+                        <div className="flex-1 min-w-0">
+                          <h3 className={cn("font-medium text-foreground truncate", isMobile && "text-sm")}>
                             {booking.procedure_name}
                           </h3>
-                          <div className="text-sm text-muted-foreground">
-                            {format(new Date(booking.preferred_date), "MMMM d, yyyy")}
+                          <div className={cn("text-muted-foreground", isMobile ? "text-xs" : "text-sm")}>
+                            {format(new Date(booking.preferred_date), isMobile ? "MMM d, yyyy" : "MMMM d, yyyy")}
                             {booking.provider && ` · ${booking.provider.display_name}`}
                           </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className={cn("flex items-center gap-2", isMobile && "justify-between")}>
                           {hasFeedback && (
-                            <div className="flex items-center gap-1.5 text-[#c9a87c]">
-                              <Star className="w-4 h-4 fill-current" />
-                              <span className="text-xs font-medium">Reviewed</span>
+                            <div className="flex items-center gap-1 text-[#c9a87c]">
+                              <Star className={cn(isMobile ? "w-3 h-3" : "w-4 h-4", "fill-current")} />
+                              <span className={cn("font-medium", isMobile ? "text-[10px]" : "text-xs")}>Reviewed</span>
                             </div>
                           )}
                           {canGiveFeedback && (
@@ -310,15 +313,15 @@ const BookingsPage = () => {
                               variant="glass"
                               size="sm"
                               onClick={() => openFeedbackModal(booking.id, booking.procedure_name)}
-                              className="gap-1.5"
+                              className={cn("gap-1", isMobile && "text-xs h-7 px-2")}
                             >
-                              <MessageSquare className="w-3.5 h-3.5" />
-                              Leave Feedback
+                              <MessageSquare className={cn(isMobile ? "w-3 h-3" : "w-3.5 h-3.5")} />
+                              {isMobile ? "Feedback" : "Leave Feedback"}
                             </Button>
                           )}
-                          <div className={`flex items-center gap-1.5 ${status.color}`}>
-                            <StatusIcon className="w-4 h-4" />
-                            <span className="text-sm">{status.label}</span>
+                          <div className={cn("flex items-center gap-1", status.color)}>
+                            <StatusIcon className={cn(isMobile ? "w-3 h-3" : "w-4 h-4")} />
+                            <span className={cn(isMobile ? "text-xs" : "text-sm")}>{status.label}</span>
                           </div>
                         </div>
                       </div>
