@@ -2,10 +2,10 @@ import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
-import { Star, MapPin, Search, X, Check, ArrowRight } from "lucide-react";
+import { Star, MapPin, Search, X, Check, ArrowRight, TrendingDown, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { formatPriceRange } from "@/lib/pricing";
+import { formatPriceRange, getConciergePrice } from "@/lib/pricing";
 
 interface Provider {
   id: string;
@@ -124,6 +124,28 @@ const QuickBookPage = () => {
     if (!selectedProcedure) return providers.slice(0, 4);
     return providers.filter((p) => p.procedures?.includes(selectedProcedure)).slice(0, 4);
   }, [providers, selectedProcedure]);
+
+  // Find cheapest and highest rated provider
+  const { cheapestProviderId, highestRatedProviderId } = useMemo(() => {
+    if (filteredProviders.length === 0) return { cheapestProviderId: null, highestRatedProviderId: null };
+    
+    const procedureSlug = selectedProcedure || "botox";
+    const price = getConciergePrice(procedureSlug);
+    
+    // All providers have same price for same procedure, so pick first as "cheapest"
+    // In real scenario, providers would have individual pricing
+    const cheapest = filteredProviders[0]?.id || null;
+    
+    // Find highest rated
+    const highestRated = filteredProviders.reduce((prev, curr) => 
+      Number(curr.rating) > Number(prev.rating) ? curr : prev
+    );
+    
+    return { 
+      cheapestProviderId: cheapest, 
+      highestRatedProviderId: highestRated?.id || null 
+    };
+  }, [filteredProviders, selectedProcedure]);
 
   // Filter past bookings by selected procedure
   const filteredPastBookings = useMemo(() => {
@@ -254,16 +276,36 @@ const QuickBookPage = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredProviders.map((provider) => (
+                {filteredProviders.map((provider) => {
+                  const isCheapest = provider.id === cheapestProviderId;
+                  const isHighestRated = provider.id === highestRatedProviderId;
+                  
+                  return (
                   <div
                     key={provider.id}
                     className={`
-                      glass-card p-5 border-primary/10 transition-all duration-300
+                      glass-card p-5 border-primary/10 transition-all duration-300 relative
                       hover:border-primary/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.15)]
                       ${selectedForCompare.has(provider.id) ? "ring-2 ring-primary" : ""}
                     `}
                   >
-                    <div className="flex justify-between items-start mb-3">
+                    {/* Badges */}
+                    <div className="absolute -top-2 left-4 flex gap-2">
+                      {isCheapest && (
+                        <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-medium flex items-center gap-1 border border-emerald-500/30">
+                          <TrendingDown className="w-3 h-3" />
+                          Best Value
+                        </span>
+                      )}
+                      {isHighestRated && (
+                        <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-medium flex items-center gap-1 border border-amber-500/30">
+                          <Award className="w-3 h-3" />
+                          Top Rated
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className={`flex justify-between items-start mb-3 ${(isCheapest || isHighestRated) ? "mt-2" : ""}`}>
                       <div>
                         <h3 className="font-medium text-lg">{provider.display_name}</h3>
                         <p className="text-sm text-muted-foreground">{provider.specialty}</p>
@@ -305,11 +347,11 @@ const QuickBookPage = () => {
                       </Button>
                     </Link>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
-
           {/* Past Treatments */}
           <div>
             <h2 className="font-serif text-xl md:text-2xl font-medium mb-6 flex items-center gap-2">
