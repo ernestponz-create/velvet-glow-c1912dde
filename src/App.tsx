@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Onboarding from "./pages/Onboarding";
+import SignIn from "./pages/SignIn";
 import NotFound from "./pages/NotFound";
 
 // Dashboard
@@ -32,6 +33,7 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/signin" element={<SignIn />} />
 
             {/* Protected dashboard routes */}
             <Route

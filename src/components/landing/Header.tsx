@@ -28,7 +28,7 @@ const Header = () => {
 
           {/* CTA */}
           <div className="flex items-center gap-3">
-            <Link to="/dashboard">
+            <Link to="/signin">
               <Button variant="ghost" size="sm" className="hidden sm:inline-flex text-muted-foreground">
                 Sign In
               </Button>
