@@ -111,45 +111,15 @@ export const ProviderCard = ({
             {provider.display_name}
           </Link>
           
-          {/* Badges & Gallery Button */}
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col items-end gap-1">
-              {isConciergePick && (
-                <span 
-                  className="font-serif text-[10px] md:text-[11px]"
-                  style={{ color: "#c9a961" }}
-                >
-                  ⭐ Concierge Pick
-                </span>
-              )}
-              {isBestValue && (
-                <span 
-                  className="text-[10px] md:text-[11px]"
-                  style={{ color: "#5eead4" }}
-                >
-                  Best Value
-                </span>
-              )}
-              {isSoonestAvailable && !isBestValue && !isConciergePick && (
-                <span 
-                  className="text-[10px] md:text-[11px]"
-                  style={{ color: "rgba(255,255,255,0.6)" }}
-                >
-                  Soonest Available
-                </span>
-              )}
-            </div>
-            
-            {/* Gallery Button */}
-            <button
-              onClick={() => setIsGalleryOpen(true)}
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-all
-                bg-white/5 border border-white/10 hover:bg-[#d4af37]/20 hover:border-[#d4af37]/40"
-              aria-label="View gallery"
-            >
-              <Images className="w-4 h-4 text-white/70" />
-            </button>
-          </div>
+          {/* Gallery Button */}
+          <button
+            onClick={() => setIsGalleryOpen(true)}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all
+              bg-white/5 border border-white/10 hover:bg-[#d4af37]/20 hover:border-[#d4af37]/40"
+            aria-label="View gallery"
+          >
+            <Images className="w-4 h-4 text-white/70" />
+          </button>
         </div>
 
         {/* Specialty Tag */}
@@ -216,6 +186,36 @@ export const ProviderCard = ({
         >
           Book Now
         </Button>
+
+        {/* Badges - Below Button */}
+        {(isConciergePick || isBestValue || isSoonestAvailable) && (
+          <div className="flex items-center justify-center gap-3 mt-4">
+            {isConciergePick && (
+              <span 
+                className="font-serif text-[10px] md:text-[11px]"
+                style={{ color: "#c9a961" }}
+              >
+                ⭐ Concierge Pick
+              </span>
+            )}
+            {isBestValue && (
+              <span 
+                className="text-[10px] md:text-[11px]"
+                style={{ color: "#5eead4" }}
+              >
+                Best Value
+              </span>
+            )}
+            {isSoonestAvailable && !isBestValue && !isConciergePick && (
+              <span 
+                className="text-[10px] md:text-[11px]"
+                style={{ color: "rgba(255,255,255,0.6)" }}
+              >
+                Soonest Available
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Gallery Modal */}
