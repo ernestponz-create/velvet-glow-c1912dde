@@ -23,6 +23,12 @@ const Footer = () => {
             <a href="#" className="hover:text-foreground transition-colors underline-elegant">
               Contact
             </a>
+            <Link 
+              to="/provider-signup" 
+              className="hover:text-foreground transition-colors underline-elegant text-primary/80 hover:text-primary"
+            >
+              Become a Provider
+            </Link>
           </nav>
 
           {/* Copyright */}
