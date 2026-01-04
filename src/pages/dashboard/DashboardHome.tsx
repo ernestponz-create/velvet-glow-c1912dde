@@ -77,7 +77,7 @@ const DashboardHome = () => {
             </>
           );
 
-          const cardClasses = "glass-card p-6 group cursor-pointer hover:border-primary/30 hover:-translate-y-1 transition-all duration-300";
+          const cardClasses = "glass-card p-6 group cursor-pointer border-primary/10 hover:border-primary/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-300";
 
           if (action.isExternal) {
             return (
