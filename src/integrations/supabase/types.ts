@@ -104,6 +104,63 @@ export type Database = {
         }
         Relationships: []
       }
+      providers: {
+        Row: {
+          city: string
+          created_at: string
+          display_name: string
+          id: string
+          image_url: string | null
+          name: string
+          neighborhood: string
+          next_available_date: string | null
+          next_available_time: string | null
+          procedures: string[] | null
+          rating: number
+          recommendation_reason: string | null
+          review_count: number
+          specialty: string
+          updated_at: string
+          years_experience: number | null
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          display_name: string
+          id?: string
+          image_url?: string | null
+          name: string
+          neighborhood: string
+          next_available_date?: string | null
+          next_available_time?: string | null
+          procedures?: string[] | null
+          rating?: number
+          recommendation_reason?: string | null
+          review_count?: number
+          specialty: string
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          display_name?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          neighborhood?: string
+          next_available_date?: string | null
+          next_available_time?: string | null
+          procedures?: string[] | null
+          rating?: number
+          recommendation_reason?: string | null
+          review_count?: number
+          specialty?: string
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
