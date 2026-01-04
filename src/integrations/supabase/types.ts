@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      procedures: {
+        Row: {
+          benefit_phrase: string
+          concerns: string[]
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          image_url: string | null
+          investment_level: string
+          is_featured: boolean | null
+          name: string
+          recovery_days: number | null
+          short_description: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          benefit_phrase: string
+          concerns?: string[]
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          image_url?: string | null
+          investment_level: string
+          is_featured?: boolean | null
+          name: string
+          recovery_days?: number | null
+          short_description: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          benefit_phrase?: string
+          concerns?: string[]
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          image_url?: string | null
+          investment_level?: string
+          is_featured?: boolean | null
+          name?: string
+          recovery_days?: number | null
+          short_description?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age_range: string | null
