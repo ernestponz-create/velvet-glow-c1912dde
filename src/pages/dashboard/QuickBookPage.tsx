@@ -369,13 +369,13 @@ const QuickBookPage = () => {
               </div>
             )}
           </div>
-          {/* Past Treatments */}
+          {/* Last Treatment */}
           <div>
             <h2 className="font-serif text-xl md:text-2xl font-medium mb-6 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <ArrowRight className="w-4 h-4 text-primary" />
               </span>
-              Your Past Treatments
+              Last Treatment
             </h2>
             
             {filteredPastBookings.length === 0 ? (
