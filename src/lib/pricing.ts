@@ -61,9 +61,15 @@ export const getPriceRange = (procedureSlug: string): { min: number; max: number
 };
 
 export const formatPriceRange = (procedureSlug: string): string => {
-  const range = getPriceRange(procedureSlug);
-  if (!range) return "Contact for pricing";
-  return `£${range.min.toLocaleString()}–£${range.max.toLocaleString()}`;
+  const price = getConciergePrice(procedureSlug);
+  if (!price) return "Contact for pricing";
+  return `£${price.toLocaleString()}`;
+};
+
+export const formatPrice = (procedureSlug: string): string => {
+  const price = getConciergePrice(procedureSlug);
+  if (!price) return "Contact for pricing";
+  return `£${price.toLocaleString()}`;
 };
 
 export const calculateSavings = (procedureSlug: string): number => {
