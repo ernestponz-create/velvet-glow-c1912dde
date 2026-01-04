@@ -284,30 +284,28 @@ const QuickBookPage = () => {
                   <div
                     key={provider.id}
                     className={`
-                      glass-card p-5 border-primary/10 transition-all duration-300 relative
+                      glass-card p-5 border-primary/10 transition-all duration-300 overflow-hidden
                       hover:border-primary/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.15)]
                       ${selectedForCompare.has(provider.id) ? "ring-2 ring-primary" : ""}
                     `}
                   >
-                    {/* Badges */}
-                    <div className="absolute -top-2 left-4 flex gap-2">
-                      {isCheapest && (
-                        <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-medium flex items-center gap-1 border border-emerald-500/30">
-                          <TrendingDown className="w-3 h-3" />
-                          Best Value
-                        </span>
-                      )}
-                      {isHighestRated && (
-                        <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-medium flex items-center gap-1 border border-amber-500/30">
-                          <Award className="w-3 h-3" />
-                          Top Rated
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className={`flex justify-between items-start mb-3 ${(isCheapest || isHighestRated) ? "mt-2" : ""}`}>
-                      <div>
-                        <h3 className="font-medium text-lg">{provider.display_name}</h3>
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <h3 className="font-medium text-lg">{provider.display_name}</h3>
+                          {isCheapest && (
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1">
+                              <TrendingDown className="w-2.5 h-2.5" />
+                              Best Value
+                            </span>
+                          )}
+                          {isHighestRated && (
+                            <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1">
+                              <Award className="w-2.5 h-2.5" />
+                              Top Rated
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground">{provider.specialty}</p>
                       </div>
                       <button
