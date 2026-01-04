@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
-import { Star, MapPin, Search, X, Check, ArrowRight, TrendingDown, Award } from "lucide-react";
+import { Star, MapPin, Search, X, Check, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatPriceRange, getConciergePrice } from "@/lib/pricing";
@@ -125,27 +125,16 @@ const QuickBookPage = () => {
     return providers.filter((p) => p.procedures?.includes(selectedProcedure)).slice(0, 4);
   }, [providers, selectedProcedure]);
 
-  // Find cheapest and highest rated provider
-  const { cheapestProviderId, highestRatedProviderId } = useMemo(() => {
-    if (filteredProviders.length === 0) return { cheapestProviderId: null, highestRatedProviderId: null };
+  // Find concierge's pick (highest rated provider)
+  const conciergePickId = useMemo(() => {
+    if (filteredProviders.length === 0) return null;
     
-    const procedureSlug = selectedProcedure || "botox";
-    const price = getConciergePrice(procedureSlug);
-    
-    // All providers have same price for same procedure, so pick first as "cheapest"
-    // In real scenario, providers would have individual pricing
-    const cheapest = filteredProviders[0]?.id || null;
-    
-    // Find highest rated
-    const highestRated = filteredProviders.reduce((prev, curr) => 
+    const topProvider = filteredProviders.reduce((prev, curr) => 
       Number(curr.rating) > Number(prev.rating) ? curr : prev
     );
     
-    return { 
-      cheapestProviderId: cheapest, 
-      highestRatedProviderId: highestRated?.id || null 
-    };
-  }, [filteredProviders, selectedProcedure]);
+    return topProvider?.id || null;
+  }, [filteredProviders]);
 
   // Filter past bookings by selected procedure
   const filteredPastBookings = useMemo(() => {
@@ -277,8 +266,7 @@ const QuickBookPage = () => {
             ) : (
               <div className="space-y-4">
                 {filteredProviders.map((provider) => {
-                  const isCheapest = provider.id === cheapestProviderId;
-                  const isHighestRated = provider.id === highestRatedProviderId;
+                  const isConciergePick = provider.id === conciergePickId;
                   
                   return (
                   <div
@@ -293,16 +281,10 @@ const QuickBookPage = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                           <h3 className="font-medium text-lg">{provider.display_name}</h3>
-                          {isCheapest && (
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1">
-                              <TrendingDown className="w-2.5 h-2.5" />
-                              Best Value
-                            </span>
-                          )}
-                          {isHighestRated && (
-                            <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1">
-                              <Award className="w-2.5 h-2.5" />
-                              Top Rated
+                          {isConciergePick && (
+                            <span className="px-2 py-0.5 rounded-full bg-primary/15 text-primary text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1">
+                              <Sparkles className="w-2.5 h-2.5" />
+                              Concierge's Pick
                             </span>
                           )}
                         </div>
