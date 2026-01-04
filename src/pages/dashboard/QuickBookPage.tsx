@@ -21,6 +21,7 @@ interface Provider {
   image_url: string | null;
   next_available_date: string | null;
   next_available_time: string | null;
+  base_price: number | null;
 }
 
 interface PastBooking {
@@ -140,8 +141,13 @@ const QuickBookPage = () => {
       Number(curr.rating) > Number(prev.rating) ? curr : prev
     );
     
-    // Lowest Price: first provider (all have same procedure price, but in real scenario would differ)
-    const lowestPrice = filteredProviders[0];
+    // Lowest Price: provider with lowest base_price
+    const withPrices = filteredProviders.filter(p => p.base_price != null);
+    const lowestPrice = withPrices.length > 0
+      ? withPrices.reduce((prev, curr) => 
+          (curr.base_price || 9999) < (prev.base_price || 9999) ? curr : prev
+        )
+      : null;
     
     // Closest Appointment: earliest next_available_date
     const withDates = filteredProviders.filter(p => p.next_available_date);
