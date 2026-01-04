@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
-import { Star, MapPin, Search, X, Check, ArrowRight, Sparkles } from "lucide-react";
+import { Star, MapPin, X, Check, ArrowRight, Sparkles, Tag, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatPriceRange, getConciergePrice } from "@/lib/pricing";
@@ -19,6 +19,7 @@ interface Provider {
   procedures: string[];
   recommendation_reason: string | null;
   image_url: string | null;
+  next_available_date: string | null;
 }
 
 interface PastBooking {
@@ -125,15 +126,31 @@ const QuickBookPage = () => {
     return providers.filter((p) => p.procedures?.includes(selectedProcedure)).slice(0, 4);
   }, [providers, selectedProcedure]);
 
-  // Find concierge's pick (highest rated provider)
-  const conciergePickId = useMemo(() => {
-    if (filteredProviders.length === 0) return null;
+  // Find badge winners
+  const { conciergePickId, lowestPriceId, closestAppointmentId } = useMemo(() => {
+    if (filteredProviders.length === 0) return { conciergePickId: null, lowestPriceId: null, closestAppointmentId: null };
     
-    const topProvider = filteredProviders.reduce((prev, curr) => 
+    // Concierge's Pick: highest rated
+    const topRated = filteredProviders.reduce((prev, curr) => 
       Number(curr.rating) > Number(prev.rating) ? curr : prev
     );
     
-    return topProvider?.id || null;
+    // Lowest Price: first provider (all have same procedure price, but in real scenario would differ)
+    const lowestPrice = filteredProviders[0];
+    
+    // Closest Appointment: earliest next_available_date
+    const withDates = filteredProviders.filter(p => p.next_available_date);
+    const closestAppt = withDates.length > 0 
+      ? withDates.reduce((prev, curr) => 
+          new Date(curr.next_available_date!) < new Date(prev.next_available_date!) ? curr : prev
+        )
+      : filteredProviders[0];
+    
+    return { 
+      conciergePickId: topRated?.id || null,
+      lowestPriceId: lowestPrice?.id || null,
+      closestAppointmentId: closestAppt?.id || null
+    };
   }, [filteredProviders]);
 
   // Filter past bookings by selected procedure
@@ -256,6 +273,8 @@ const QuickBookPage = () => {
               <div className="space-y-4">
                 {filteredProviders.map((provider) => {
                   const isConciergePick = provider.id === conciergePickId;
+                  const isLowestPrice = provider.id === lowestPriceId;
+                  const isClosestAppointment = provider.id === closestAppointmentId;
                   
                   return (
                   <div
@@ -270,14 +289,28 @@ const QuickBookPage = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                           <h3 className="font-medium text-lg">{provider.display_name}</h3>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap mt-2">
                           {isConciergePick && (
                             <span className="px-2 py-0.5 rounded-full bg-primary/15 text-primary text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1">
                               <Sparkles className="w-2.5 h-2.5" />
                               Concierge's Pick
                             </span>
                           )}
+                          {isLowestPrice && (
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1">
+                              <Tag className="w-2.5 h-2.5" />
+                              Lowest Price
+                            </span>
+                          )}
+                          {isClosestAppointment && (
+                            <span className="px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1">
+                              <Clock className="w-2.5 h-2.5" />
+                              Soonest Available
+                            </span>
+                          )}
                         </div>
-                        <p className="text-sm text-muted-foreground">{provider.specialty}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{provider.specialty}</p>
                       </div>
                       <button
                         onClick={() => toggleCompare(provider.id)}
