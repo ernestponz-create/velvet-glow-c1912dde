@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { getMarketHighestPrice, getConciergePrice } from "@/lib/pricing";
 import {
   Dialog,
   DialogContent,
@@ -83,8 +84,12 @@ const BookingWizard = ({
 
     setIsSubmitting(true);
 
+    // Get pricing for this procedure
+    const marketPrice = getMarketHighestPrice(procedureSlug);
+    const pricePaid = getConciergePrice(procedureSlug);
+
     try {
-      // Create booking
+      // Create booking with pricing data
       const { data: booking, error: bookingError } = await supabase
         .from("bookings")
         .insert({
@@ -98,6 +103,8 @@ const BookingWizard = ({
           consult_preferred_date: consultDate ? format(consultDate, "yyyy-MM-dd") : null,
           consult_preferred_time: consultTime || null,
           investment_level: investmentLevel,
+          market_highest_price: marketPrice,
+          price_paid: pricePaid,
           status: "pending",
         })
         .select()

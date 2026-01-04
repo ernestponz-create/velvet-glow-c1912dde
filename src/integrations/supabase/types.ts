@@ -21,9 +21,11 @@ export type Database = {
           created_at: string
           id: string
           investment_level: string
+          market_highest_price: number | null
           notes: string | null
           preferred_date: string
           preferred_time: string | null
+          price_paid: number | null
           procedure_name: string
           procedure_slug: string
           provider_id: string
@@ -38,9 +40,11 @@ export type Database = {
           created_at?: string
           id?: string
           investment_level: string
+          market_highest_price?: number | null
           notes?: string | null
           preferred_date: string
           preferred_time?: string | null
+          price_paid?: number | null
           procedure_name: string
           procedure_slug: string
           provider_id: string
@@ -55,9 +59,11 @@ export type Database = {
           created_at?: string
           id?: string
           investment_level?: string
+          market_highest_price?: number | null
           notes?: string | null
           preferred_date?: string
           preferred_time?: string | null
+          price_paid?: number | null
           procedure_name?: string
           procedure_slug?: string
           provider_id?: string
