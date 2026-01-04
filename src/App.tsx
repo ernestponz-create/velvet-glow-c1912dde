@@ -19,6 +19,7 @@ import ConciergePage from "@/pages/dashboard/ConciergePage";
 import BookingsPage from "@/pages/dashboard/BookingsPage";
 import AftercarePage from "@/pages/dashboard/AftercarePage";
 import ProfilePage from "@/pages/dashboard/ProfilePage";
+import QuickBookPage from "@/pages/dashboard/QuickBookPage";
 
 const queryClient = new QueryClient();
 
@@ -44,13 +45,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             >
-              <Route index element={<DashboardHome />} />
+            <Route index element={<DashboardHome />} />
               <Route path="discover" element={<DiscoverPage />} />
               <Route path="discover/:slug" element={<ProcedureDetailPage />} />
               <Route path="concierge" element={<ConciergePage />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="aftercare" element={<AftercarePage />} />
               <Route path="profile" element={<ProfilePage />} />
+              <Route path="quick-book" element={<QuickBookPage />} />
             </Route>
 
             {/* Catch-all */}
