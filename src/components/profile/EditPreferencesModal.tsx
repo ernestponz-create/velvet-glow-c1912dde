@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 
 interface EditPreferencesModalProps {
   open: boolean;
@@ -15,13 +15,11 @@ interface EditPreferencesModalProps {
     ageRange?: string;
     concerns?: string[];
     location?: string;
-    budget?: string;
   };
   onSave: (preferences: {
     ageRange: string;
     concerns: string[];
     location: string;
-    budget: string;
   }) => Promise<void>;
   isLoading: boolean;
 }
@@ -47,12 +45,6 @@ const concerns = [
   { value: "preventative", label: "Preventative Care" },
 ];
 
-const budgetTiers = [
-  { value: "premium", label: "Premium", desc: "$5K–$15K annually" },
-  { value: "luxury", label: "Luxury", desc: "$15K–$50K annually" },
-  { value: "elite", label: "Elite", desc: "$50K+ annually" },
-];
-
 const EditPreferencesModal = ({
   open,
   onOpenChange,
@@ -65,7 +57,6 @@ const EditPreferencesModal = ({
     currentPreferences.concerns || []
   );
   const [location, setLocation] = useState(currentPreferences.location || "");
-  const [budget, setBudget] = useState(currentPreferences.budget || "");
 
   const toggleConcern = (value: string) => {
     setSelectedConcerns((prev) =>
@@ -80,7 +71,6 @@ const EditPreferencesModal = ({
       ageRange,
       concerns: selectedConcerns,
       location: location.trim(),
-      budget,
     });
   };
 
@@ -146,36 +136,6 @@ const EditPreferencesModal = ({
               className="w-full h-11 px-4 rounded-lg bg-muted/30 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
               maxLength={100}
             />
-          </div>
-
-          {/* Budget */}
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">Investment Preference</h3>
-            <div className="space-y-2">
-              {budgetTiers.map((tier) => (
-                <button
-                  key={tier.value}
-                  onClick={() => setBudget(tier.value)}
-                  className={`w-full p-3 rounded-lg border text-left transition-all flex items-center justify-between ${
-                    budget === tier.value
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-muted/30 hover:border-primary/30"
-                  }`}
-                >
-                  <div>
-                    <p className={`text-sm font-medium ${budget === tier.value ? "text-foreground" : "text-muted-foreground"}`}>
-                      {tier.label}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{tier.desc}</p>
-                  </div>
-                  {budget === tier.value && (
-                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                      <Check className="w-3 h-3 text-primary-foreground" />
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 

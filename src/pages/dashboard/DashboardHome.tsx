@@ -2,6 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { Sparkles, Calendar, Search, MessageCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import MembershipTierCard from "@/components/membership/MembershipTierCard";
 
 const DashboardHome = () => {
   const { profile, user } = useAuth();
@@ -38,9 +39,16 @@ const DashboardHome = () => {
     return (
       <div className="pt-2">
         {/* Compact welcome */}
-        <div className="text-center py-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mx-auto mb-4 border border-primary/20">
-            <Sparkles className="w-6 h-6 text-primary" />
+        <div className="text-center py-6">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
+              <Sparkles className="w-5 h-5 text-primary" />
+            </div>
+            <MembershipTierCard 
+              currentTier={profile?.computed_tier} 
+              totalSpend={profile?.total_spend} 
+              compact 
+            />
           </div>
           <h1 className="font-serif text-2xl font-medium tracking-tight mb-2">
             Welcome, <span className="text-gradient italic">{displayName}</span>
@@ -48,6 +56,14 @@ const DashboardHome = () => {
           <p className="text-muted-foreground text-sm">
             How may we help you today?
           </p>
+        </div>
+
+        {/* Membership Card */}
+        <div className="mb-4">
+          <MembershipTierCard 
+            currentTier={profile?.computed_tier} 
+            totalSpend={profile?.total_spend} 
+          />
         </div>
 
         {/* Quick actions - stacked cards */}
@@ -126,8 +142,16 @@ const DashboardHome = () => {
         </div>
       </div>
 
+      {/* Membership Tier Card */}
+      <div className="max-w-md mx-auto mb-8">
+        <MembershipTierCard 
+          currentTier={profile?.computed_tier} 
+          totalSpend={profile?.total_spend} 
+        />
+      </div>
+
       {/* Quick actions */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {quickActions.map((action) => {
           const CardContent = (
             <>
