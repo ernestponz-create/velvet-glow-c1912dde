@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Star, MapPin, Calendar, Sparkles, Info, SlidersHorizontal } from "lucide-react";
+import { Star, MapPin, Calendar, Sparkles, Info, SlidersHorizontal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import BookingWizard from "@/components/booking/BookingWizard";
 
 interface Procedure {
   id: string;
@@ -51,6 +52,18 @@ const ConciergeSheet = ({ procedure, isOpen, onClose }: ConciergeSheetProps) => 
   const { profile } = useAuth();
   const [providers, setProviders] = useState<Provider[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+
+  const handleBookClick = (provider: Provider) => {
+    setSelectedProvider(provider);
+    setIsBookingOpen(true);
+  };
+
+  const handleBookingClose = () => {
+    setIsBookingOpen(false);
+    setSelectedProvider(null);
+  };
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -238,6 +251,7 @@ const ConciergeSheet = ({ procedure, isOpen, onClose }: ConciergeSheetProps) => 
                   <Button
                     variant="velvet"
                     className="w-full sm:w-auto group/btn"
+                    onClick={() => handleBookClick(provider)}
                   >
                     Book Priority Slot
                     <Sparkles className="w-4 h-4 ml-2 transition-transform group-hover/btn:scale-110" />
@@ -270,6 +284,18 @@ const ConciergeSheet = ({ procedure, isOpen, onClose }: ConciergeSheetProps) => 
           </div>
         </div>
       </DialogContent>
+
+      {/* Booking Wizard */}
+      {procedure && (
+        <BookingWizard
+          isOpen={isBookingOpen}
+          onClose={handleBookingClose}
+          provider={selectedProvider}
+          procedureSlug={procedure.slug}
+          procedureName={procedure.name}
+          investmentLevel={procedure.investment_level}
+        />
+      )}
     </Dialog>
   );
 };
