@@ -402,6 +402,25 @@ const ConciergePage = () => {
                       Due {format(new Date(task.due_at), "MMM d, yyyy")}
                     </p>
                   </div>
+                  {task.status !== "completed" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs h-7 px-2 text-muted-foreground hover:text-foreground"
+                      onClick={async () => {
+                        await supabase
+                          .from("tasks")
+                          .update({ status: "completed", completed_at: new Date().toISOString() })
+                          .eq("id", task.id);
+                        setTasks(prev => prev.map(t => 
+                          t.id === task.id ? { ...t, status: "completed" } : t
+                        ));
+                      }}
+                    >
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                      Done
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
