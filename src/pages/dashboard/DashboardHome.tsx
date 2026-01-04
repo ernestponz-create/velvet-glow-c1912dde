@@ -1,10 +1,35 @@
 import { useAuth } from "@/hooks/useAuth";
-import { Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Sparkles, Calendar, Search, MessageCircle } from "lucide-react";
 
 const DashboardHome = () => {
   const { profile, user } = useAuth();
   
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "there";
+
+  const quickActions = [
+    { 
+      title: "Book Consultation", 
+      desc: "Schedule your next appointment",
+      icon: Calendar,
+      href: "/dashboard/discover",
+      isExternal: false
+    },
+    { 
+      title: "Browse Treatments", 
+      desc: "Explore curated procedures",
+      icon: Search,
+      href: "/dashboard/discover",
+      isExternal: false
+    },
+    { 
+      title: "Contact Concierge", 
+      desc: "24/7 WhatsApp support",
+      icon: MessageCircle,
+      href: "https://wa.me/1234567890",
+      isExternal: true
+    },
+  ];
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -37,23 +62,45 @@ const DashboardHome = () => {
         </div>
       </div>
 
-      {/* Quick actions placeholder */}
+      {/* Quick actions */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
-        {[
-          { title: "Book Consultation", desc: "Schedule your next appointment" },
-          { title: "Browse Treatments", desc: "Explore curated procedures" },
-          { title: "Contact Concierge", desc: "24/7 personalized support" },
-        ].map((action) => (
-          <div
-            key={action.title}
-            className="glass-card p-6 hover:border-primary/30 transition-colors cursor-pointer group"
-          >
-            <h3 className="font-medium text-foreground group-hover:text-primary transition-colors mb-1">
-              {action.title}
-            </h3>
-            <p className="text-sm text-muted-foreground">{action.desc}</p>
-          </div>
-        ))}
+        {quickActions.map((action) => {
+          const CardContent = (
+            <>
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                <action.icon className="w-5 h-5 text-primary" />
+              </div>
+              <h3 className="font-medium text-foreground group-hover:text-primary transition-colors mb-1">
+                {action.title}
+              </h3>
+              <p className="text-sm text-muted-foreground">{action.desc}</p>
+            </>
+          );
+
+          if (action.isExternal) {
+            return (
+              <a
+                key={action.title}
+                href={action.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="glass-card p-6 hover:border-primary/30 transition-colors cursor-pointer group"
+              >
+                {CardContent}
+              </a>
+            );
+          }
+
+          return (
+            <Link
+              key={action.title}
+              to={action.href}
+              className="glass-card p-6 hover:border-primary/30 transition-colors cursor-pointer group"
+            >
+              {CardContent}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
