@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, Clock, MapPin, Sparkles, ChevronRight, CheckCircle2, Clock3, XCircle } from "lucide-react";
+import { Calendar, Clock, MapPin, Sparkles, ChevronRight, CheckCircle2, Clock3, XCircle, Star, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { format, isPast, isToday, isTomorrow } from "date-fns";
+import FeedbackModal from "@/components/feedback/FeedbackModal";
 
 interface Booking {
   id: string;
@@ -23,6 +24,7 @@ interface Booking {
     neighborhood: string;
     city: string;
   } | null;
+  has_feedback?: boolean;
 }
 
 const investmentLabels: Record<string, { label: string; range: string }> = {
@@ -42,12 +44,19 @@ const BookingsPage = () => {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [feedbackModal, setFeedbackModal] = useState<{
+    open: boolean;
+    bookingId: string;
+    procedureName: string;
+  }>({ open: false, bookingId: "", procedureName: "" });
+  const [feedbackGiven, setFeedbackGiven] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchBookings = async () => {
       if (!user) return;
 
-      const { data, error } = await supabase
+      // Fetch bookings
+      const { data: bookingsData, error: bookingsError } = await supabase
         .from("bookings")
         .select(`
           *,
@@ -56,8 +65,22 @@ const BookingsPage = () => {
         .eq("user_id", user.id)
         .order("preferred_date", { ascending: true });
 
-      if (!error && data) {
-        setBookings(data as Booking[]);
+      // Fetch existing feedback
+      const { data: feedbackData } = await supabase
+        .from("feedback")
+        .select("booking_id")
+        .eq("user_id", user.id);
+
+      if (!bookingsError && bookingsData) {
+        const feedbackBookingIds = new Set(feedbackData?.map(f => f.booking_id) || []);
+        setFeedbackGiven(feedbackBookingIds);
+        
+        const bookingsWithFeedback = bookingsData.map(b => ({
+          ...b,
+          has_feedback: feedbackBookingIds.has(b.id),
+        })) as Booking[];
+        
+        setBookings(bookingsWithFeedback);
       }
       setIsLoading(false);
     };
@@ -77,6 +100,19 @@ const BookingsPage = () => {
     if (isPast(date) && !isToday(date)) return "past";
     if (isToday(date)) return "today";
     return "upcoming";
+  };
+
+  const openFeedbackModal = (bookingId: string, procedureName: string) => {
+    setFeedbackModal({ open: true, bookingId, procedureName });
+  };
+
+  const handleFeedbackSubmitted = () => {
+    setFeedbackGiven(prev => new Set([...prev, feedbackModal.bookingId]));
+    setBookings(prev => 
+      prev.map(b => 
+        b.id === feedbackModal.bookingId ? { ...b, has_feedback: true } : b
+      )
+    );
   };
 
   // Separate upcoming and past bookings
@@ -244,14 +280,16 @@ const BookingsPage = () => {
                 {pastBookings.map((booking) => {
                   const status = statusConfig[booking.status] || statusConfig.pending;
                   const StatusIcon = status.icon;
+                  const hasFeedback = feedbackGiven.has(booking.id);
+                  const canGiveFeedback = booking.status !== "cancelled" && !hasFeedback;
 
                   return (
                     <article
                       key={booking.id}
-                      className="glass-card p-4 opacity-70"
+                      className="glass-card p-4"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <div>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="flex-1">
                           <h3 className="font-medium text-foreground">
                             {booking.procedure_name}
                           </h3>
@@ -260,9 +298,28 @@ const BookingsPage = () => {
                             {booking.provider && ` · ${booking.provider.display_name}`}
                           </div>
                         </div>
-                        <div className={`flex items-center gap-1.5 ${status.color}`}>
-                          <StatusIcon className="w-4 h-4" />
-                          <span className="text-sm">{status.label}</span>
+                        <div className="flex items-center gap-3">
+                          {hasFeedback && (
+                            <div className="flex items-center gap-1.5 text-[#c9a87c]">
+                              <Star className="w-4 h-4 fill-current" />
+                              <span className="text-xs font-medium">Reviewed</span>
+                            </div>
+                          )}
+                          {canGiveFeedback && (
+                            <Button
+                              variant="glass"
+                              size="sm"
+                              onClick={() => openFeedbackModal(booking.id, booking.procedure_name)}
+                              className="gap-1.5"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                              Leave Feedback
+                            </Button>
+                          )}
+                          <div className={`flex items-center gap-1.5 ${status.color}`}>
+                            <StatusIcon className="w-4 h-4" />
+                            <span className="text-sm">{status.label}</span>
+                          </div>
                         </div>
                       </div>
                     </article>
@@ -273,6 +330,15 @@ const BookingsPage = () => {
           )}
         </div>
       )}
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        open={feedbackModal.open}
+        onOpenChange={(open) => setFeedbackModal(prev => ({ ...prev, open }))}
+        bookingId={feedbackModal.bookingId}
+        procedureName={feedbackModal.procedureName}
+        onFeedbackSubmitted={handleFeedbackSubmitted}
+      />
     </div>
   );
 };
