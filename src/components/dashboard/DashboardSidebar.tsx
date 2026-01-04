@@ -17,10 +17,10 @@ interface DashboardSidebarProps {
 
 const menuItems = [
   { icon: Home, label: "Home", path: "/dashboard" },
-  { icon: Sparkles, label: "Browse Treatments", path: "/dashboard/discover" },
-  { icon: Calendar, label: "Book Treatment", path: "/dashboard/quick-book" },
+  { icon: Sparkles, label: "Discover Procedures", path: "/dashboard/discover" },
   { icon: MessageCircle, label: "My Concierge", path: "/dashboard/concierge" },
-  { icon: Heart, label: "Bookings", path: "/dashboard/bookings" },
+  { icon: Calendar, label: "Bookings", path: "/dashboard/bookings" },
+  { icon: Heart, label: "Aftercare", path: "/dashboard/aftercare" },
 ];
 
 const DashboardSidebar = ({ isCollapsed, onToggle }: DashboardSidebarProps) => {
