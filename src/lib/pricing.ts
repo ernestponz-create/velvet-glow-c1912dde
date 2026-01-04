@@ -32,12 +32,38 @@ export const conciergePrices: Record<string, number> = {
   "ipl-photofacial": 600,
 };
 
+// Price ranges for provider cards (min-max in GBP)
+export const procedurePriceRanges: Record<string, { min: number; max: number }> = {
+  "botox": { min: 400, max: 800 },
+  "dermal-fillers": { min: 500, max: 1200 },
+  "laser-resurfacing": { min: 1200, max: 2000 },
+  "morpheus8": { min: 800, max: 1500 },
+  "hydrafacial": { min: 200, max: 500 },
+  "chemical-peel": { min: 150, max: 400 },
+  "microneedling": { min: 300, max: 650 },
+  "prp-therapy": { min: 600, max: 1100 },
+  "thread-lift": { min: 1000, max: 1800 },
+  "ultherapy": { min: 1500, max: 2500 },
+  "lip-enhancement": { min: 400, max: 850 },
+  "ipl-photofacial": { min: 350, max: 700 },
+};
+
 export const getMarketHighestPrice = (procedureSlug: string): number | null => {
   return marketHighestPrices[procedureSlug] ?? null;
 };
 
 export const getConciergePrice = (procedureSlug: string): number | null => {
   return conciergePrices[procedureSlug] ?? null;
+};
+
+export const getPriceRange = (procedureSlug: string): { min: number; max: number } | null => {
+  return procedurePriceRanges[procedureSlug] ?? null;
+};
+
+export const formatPriceRange = (procedureSlug: string): string => {
+  const range = getPriceRange(procedureSlug);
+  if (!range) return "Contact for pricing";
+  return `£${range.min.toLocaleString()}–£${range.max.toLocaleString()}`;
 };
 
 export const calculateSavings = (procedureSlug: string): number => {

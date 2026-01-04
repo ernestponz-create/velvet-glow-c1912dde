@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Clock, Calendar, Sparkles, ChevronRight, Star, MapPin, Check } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Sparkles, ChevronRight, Star, MapPin, Check, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import BookingWizard from "@/components/booking/BookingWizard";
+import AllProvidersModal from "@/components/discover/AllProvidersModal";
+import { formatPriceRange } from "@/lib/pricing";
 
 interface Procedure {
   id: string;
@@ -77,6 +79,7 @@ const ProcedureDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [isAllProvidersOpen, setIsAllProvidersOpen] = useState(false);
 
   const handleBookClick = (provider: Provider) => {
     setSelectedProvider(provider);
@@ -286,11 +289,20 @@ const ProcedureDetailPage = () => {
                 </div>
 
                 {provider.recommendation_reason && (
-                  <p className="text-sm text-primary/80 italic mb-4 flex items-center gap-2">
+                  <p className="text-sm text-primary/80 italic mb-3 flex items-center gap-2">
                     <Sparkles className="w-3.5 h-3.5" />
                     "{provider.recommendation_reason}"
                   </p>
                 )}
+
+                {/* Investment range */}
+                <div className="mb-4">
+                  <div className="inline-flex px-2.5 py-1 rounded-full border border-primary/30 bg-primary/5">
+                    <span className="text-xs text-pearl">
+                      Investment: {formatPriceRange(procedure.slug)}
+                    </span>
+                  </div>
+                </div>
 
                 <Button
                   variant="velvet"
@@ -303,6 +315,23 @@ const ProcedureDetailPage = () => {
                 </Button>
               </div>
             ))}
+          </div>
+
+          {/* Discover All Providers Button */}
+          <div className="text-center pt-4">
+            <Button
+              variant="velvet"
+              size="lg"
+              className="group px-8"
+              onClick={() => setIsAllProvidersOpen(true)}
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Discover All Providers in Your Area
+              <ChevronRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+            </Button>
+            <p className="text-xs text-muted-foreground mt-3">
+              Browse all available specialists and compare options
+            </p>
           </div>
         </div>
       )}
@@ -464,6 +493,20 @@ const ProcedureDetailPage = () => {
           procedureSlug={procedure.slug}
           procedureName={procedure.name}
           investmentLevel={procedure.investment_level}
+        />
+      )}
+
+      {/* All Providers Modal */}
+      {procedure && (
+        <AllProvidersModal
+          isOpen={isAllProvidersOpen}
+          onClose={() => setIsAllProvidersOpen(false)}
+          procedureSlug={procedure.slug}
+          procedureName={procedure.name}
+          onSelectProvider={(provider) => {
+            setSelectedProvider(provider);
+            setIsBookingOpen(true);
+          }}
         />
       )}
     </div>
