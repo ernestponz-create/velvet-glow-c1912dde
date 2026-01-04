@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      availability_slots: {
+        Row: {
+          block_note: string | null
+          block_reason: string | null
+          booking_id: string | null
+          created_at: string
+          end_time: string
+          id: string
+          is_recurring: boolean | null
+          provider_id: string
+          recurrence_pattern: Json | null
+          resource_id: string | null
+          slot_type: string
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          block_note?: string | null
+          block_reason?: string | null
+          booking_id?: string | null
+          created_at?: string
+          end_time: string
+          id?: string
+          is_recurring?: boolean | null
+          provider_id: string
+          recurrence_pattern?: Json | null
+          resource_id?: string | null
+          slot_type?: string
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          block_note?: string | null
+          block_reason?: string | null
+          booking_id?: string | null
+          created_at?: string
+          end_time?: string
+          id?: string
+          is_recurring?: boolean | null
+          provider_id?: string
+          recurrence_pattern?: Json | null
+          resource_id?: string | null
+          slot_type?: string
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_slots_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_slots_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           consult_preferred_date: string | null
@@ -29,6 +92,7 @@ export type Database = {
           procedure_name: string
           procedure_slug: string
           provider_id: string
+          resource_id: string | null
           status: string
           updated_at: string
           user_id: string
@@ -48,6 +112,7 @@ export type Database = {
           procedure_name: string
           procedure_slug: string
           provider_id: string
+          resource_id?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -67,6 +132,7 @@ export type Database = {
           procedure_name?: string
           procedure_slug?: string
           provider_id?: string
+          resource_id?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -78,6 +144,13 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
             referencedColumns: ["id"]
           },
         ]
@@ -243,6 +316,72 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_profiles: {
+        Row: {
+          address: string
+          approved_at: string | null
+          bio: string | null
+          city: string
+          clinic_name: string
+          created_at: string
+          credentials: string | null
+          id: string
+          phone: string
+          practice_type: string
+          primary_specialty: string
+          profile_photo_url: string | null
+          rejection_reason: string | null
+          secondary_specialties: string[] | null
+          status: string
+          updated_at: string
+          user_id: string
+          website: string | null
+          years_in_practice: string | null
+        }
+        Insert: {
+          address: string
+          approved_at?: string | null
+          bio?: string | null
+          city: string
+          clinic_name: string
+          created_at?: string
+          credentials?: string | null
+          id?: string
+          phone: string
+          practice_type: string
+          primary_specialty: string
+          profile_photo_url?: string | null
+          rejection_reason?: string | null
+          secondary_specialties?: string[] | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          website?: string | null
+          years_in_practice?: string | null
+        }
+        Update: {
+          address?: string
+          approved_at?: string | null
+          bio?: string | null
+          city?: string
+          clinic_name?: string
+          created_at?: string
+          credentials?: string | null
+          id?: string
+          phone?: string
+          practice_type?: string
+          primary_specialty?: string
+          profile_photo_url?: string | null
+          rejection_reason?: string | null
+          secondary_specialties?: string[] | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+          years_in_practice?: string | null
+        }
+        Relationships: []
+      }
       providers: {
         Row: {
           base_price: number | null
@@ -303,6 +442,44 @@ export type Database = {
         }
         Relationships: []
       }
+      resources: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          provider_id: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          provider_id: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          provider_id?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resources_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           booking_id: string | null
@@ -353,18 +530,52 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_provider_status: { Args: { _user_id: string }; Returns: string }
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       get_user_tier: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["membership_tier"]
       }
       get_user_total_spend: { Args: { _user_id: string }; Returns: number }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "user" | "provider" | "admin"
       membership_tier: "member" | "premium" | "luxury" | "elite"
     }
     CompositeTypes: {
@@ -493,6 +704,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["user", "provider", "admin"],
       membership_tier: ["member", "premium", "luxury", "elite"],
     },
   },
