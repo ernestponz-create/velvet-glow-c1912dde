@@ -12,6 +12,8 @@ interface Profile {
   location_city: string | null;
   budget_tier: string | null;
   onboarding_completed: boolean;
+  total_spend: number | null;
+  computed_tier: 'member' | 'premium' | 'luxury' | 'elite' | null;
 }
 
 interface AuthContextType {

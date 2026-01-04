@@ -7,6 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import EditPreferencesModal from "@/components/profile/EditPreferencesModal";
+import MembershipTierCard from "@/components/membership/MembershipTierCard";
 
 const ProfilePage = () => {
   const { profile, user, signOut, refreshProfile } = useAuth();
@@ -24,7 +25,6 @@ const ProfilePage = () => {
     ageRange: string;
     concerns: string[];
     location: string;
-    budget: string;
   }) => {
     if (!user) return;
 
@@ -36,7 +36,6 @@ const ProfilePage = () => {
           age_range: preferences.ageRange,
           main_concerns: preferences.concerns,
           location_city: preferences.location,
-          budget_tier: preferences.budget,
         })
         .eq("user_id", user.id);
 
@@ -70,6 +69,14 @@ const ProfilePage = () => {
           <p className="text-muted-foreground text-xs">{user?.email}</p>
         </div>
 
+        {/* Membership Tier Card */}
+        <div className="mb-4">
+          <MembershipTierCard 
+            currentTier={profile?.computed_tier} 
+            totalSpend={profile?.total_spend} 
+          />
+        </div>
+
         <div className="glass-card p-4 space-y-3">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs uppercase tracking-wider text-muted-foreground">
@@ -95,13 +102,6 @@ const ProfilePage = () => {
             <div className="flex justify-between py-2 border-b border-border/50">
               <span className="text-muted-foreground text-sm">Location</span>
               <span className="text-foreground text-sm">{profile.location_city}</span>
-            </div>
-          )}
-          
-          {profile?.budget_tier && (
-            <div className="flex justify-between py-2 border-b border-border/50">
-              <span className="text-muted-foreground text-sm">Investment Tier</span>
-              <span className="text-foreground capitalize text-sm">{profile.budget_tier}</span>
             </div>
           )}
 
@@ -141,7 +141,6 @@ const ProfilePage = () => {
             ageRange: profile?.age_range || "",
             concerns: profile?.main_concerns || [],
             location: profile?.location_city || "",
-            budget: profile?.budget_tier || "",
           }}
           onSave={handleSavePreferences}
           isLoading={isSaving}
@@ -161,6 +160,14 @@ const ProfilePage = () => {
           {displayName}
         </h1>
         <p className="text-muted-foreground text-sm">{user?.email}</p>
+      </div>
+
+      {/* Membership Tier Card */}
+      <div className="mb-6">
+        <MembershipTierCard 
+          currentTier={profile?.computed_tier} 
+          totalSpend={profile?.total_spend} 
+        />
       </div>
 
       <div className="glass-card p-6 space-y-4">
@@ -190,13 +197,6 @@ const ProfilePage = () => {
           <div className="flex justify-between py-3 border-b border-border/50">
             <span className="text-muted-foreground">Location</span>
             <span className="text-foreground">{profile.location_city}</span>
-          </div>
-        )}
-        
-        {profile?.budget_tier && (
-          <div className="flex justify-between py-3 border-b border-border/50">
-            <span className="text-muted-foreground">Investment Tier</span>
-            <span className="text-foreground capitalize">{profile.budget_tier}</span>
           </div>
         )}
 
@@ -236,7 +236,6 @@ const ProfilePage = () => {
           ageRange: profile?.age_range || "",
           concerns: profile?.main_concerns || [],
           location: profile?.location_city || "",
-          budget: profile?.budget_tier || "",
         }}
         onSave={handleSavePreferences}
         isLoading={isSaving}

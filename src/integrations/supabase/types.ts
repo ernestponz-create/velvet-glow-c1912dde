@@ -117,6 +117,36 @@ export type Database = {
           },
         ]
       }
+      member_benefits: {
+        Row: {
+          created_at: string
+          description: string | null
+          event_access_level: string
+          id: string
+          product_discount_percent: number
+          spend_threshold: number
+          tier: Database["public"]["Enums"]["membership_tier"]
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          event_access_level?: string
+          id?: string
+          product_discount_percent?: number
+          spend_threshold?: number
+          tier: Database["public"]["Enums"]["membership_tier"]
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          event_access_level?: string
+          id?: string
+          product_discount_percent?: number
+          spend_threshold?: number
+          tier?: Database["public"]["Enums"]["membership_tier"]
+        }
+        Relationships: []
+      }
       procedures: {
         Row: {
           benefit_phrase: string
@@ -169,6 +199,7 @@ export type Database = {
         Row: {
           age_range: string | null
           budget_tier: string | null
+          computed_tier: Database["public"]["Enums"]["membership_tier"] | null
           created_at: string
           full_name: string | null
           id: string
@@ -176,12 +207,14 @@ export type Database = {
           main_concerns: string[] | null
           onboarding_completed: boolean | null
           phone: string | null
+          total_spend: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           age_range?: string | null
           budget_tier?: string | null
+          computed_tier?: Database["public"]["Enums"]["membership_tier"] | null
           created_at?: string
           full_name?: string | null
           id?: string
@@ -189,12 +222,14 @@ export type Database = {
           main_concerns?: string[] | null
           onboarding_completed?: boolean | null
           phone?: string | null
+          total_spend?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           age_range?: string | null
           budget_tier?: string | null
+          computed_tier?: Database["public"]["Enums"]["membership_tier"] | null
           created_at?: string
           full_name?: string | null
           id?: string
@@ -202,6 +237,7 @@ export type Database = {
           main_concerns?: string[] | null
           onboarding_completed?: boolean | null
           phone?: string | null
+          total_spend?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -322,10 +358,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_tier: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["membership_tier"]
+      }
+      get_user_total_spend: { Args: { _user_id: string }; Returns: number }
     }
     Enums: {
-      [_ in never]: never
+      membership_tier: "member" | "premium" | "luxury" | "elite"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -452,6 +492,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      membership_tier: ["member", "premium", "luxury", "elite"],
+    },
   },
 } as const
