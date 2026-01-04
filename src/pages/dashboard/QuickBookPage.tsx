@@ -216,12 +216,9 @@ const QuickBookPage = () => {
     <div className="max-w-6xl mx-auto pb-20">
       {/* Hero */}
       <div className="text-center py-12 md:py-16">
-        <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight mb-4">
+        <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight">
           Book or <span className="text-gradient italic">Rebook</span> Your Treatment
         </h1>
-        <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-          Select a treatment to see recommended providers and your past appointments
-        </p>
       </div>
 
       <div className="mb-12">
