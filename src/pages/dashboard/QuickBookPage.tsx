@@ -337,6 +337,20 @@ const QuickBookPage = () => {
                       </span>
                     </div>
                     
+                    {provider.next_available_date && (
+                      <div className="flex items-center gap-2 mb-3 text-sm">
+                        <Clock className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-muted-foreground">Next slot:</span>
+                        <span className="text-foreground font-medium">
+                          {new Date(provider.next_available_date).toLocaleDateString("en-GB", {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short"
+                          })}
+                        </span>
+                      </div>
+                    )}
+                    
                     {provider.recommendation_reason && (
                       <p className="text-sm text-muted-foreground italic mb-4">
                         "{provider.recommendation_reason}"
