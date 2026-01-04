@@ -209,18 +209,6 @@ export const ProviderCard = ({
             </div>
           )}
 
-          {/* Quote */}
-          {provider.recommendation_reason && (
-            <p 
-              className="text-[12px] italic leading-relaxed mb-4 pl-3 border-l-2"
-              style={{ 
-                color: "rgba(212,175,55,0.7)",
-                borderColor: "rgba(212,175,55,0.3)",
-              }}
-            >
-              "{provider.recommendation_reason}"
-            </p>
-          )}
 
           {/* CTA Button */}
           <Button 
