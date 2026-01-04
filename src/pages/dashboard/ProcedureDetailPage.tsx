@@ -278,7 +278,17 @@ const ProcedureDetailPage = () => {
                       </span>
                     </div>
                   </div>
-                  {renderStars(provider.rating)}
+                  <div className="text-right">
+                    {renderStars(provider.rating)}
+                    {/* Investment range - under rating */}
+                    <div className="mt-2">
+                      <div className="inline-flex px-2.5 py-1 rounded-full border border-primary/30 bg-primary/5">
+                        <span className="text-xs text-pearl">
+                          {formatPriceRange(procedure.slug)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2 mb-3">
@@ -289,20 +299,11 @@ const ProcedureDetailPage = () => {
                 </div>
 
                 {provider.recommendation_reason && (
-                  <p className="text-sm text-primary/80 italic mb-3 flex items-center gap-2">
+                  <p className="text-sm text-primary/80 italic mb-4 flex items-center gap-2">
                     <Sparkles className="w-3.5 h-3.5" />
                     "{provider.recommendation_reason}"
                   </p>
                 )}
-
-                {/* Investment range */}
-                <div className="mb-4">
-                  <div className="inline-flex px-2.5 py-1 rounded-full border border-primary/30 bg-primary/5">
-                    <span className="text-xs text-pearl">
-                      Investment: {formatPriceRange(procedure.slug)}
-                    </span>
-                  </div>
-                </div>
 
                 <Button
                   variant="velvet"
@@ -315,23 +316,28 @@ const ProcedureDetailPage = () => {
                 </Button>
               </div>
             ))}
-          </div>
 
-          {/* Discover All Providers Button */}
-          <div className="text-center pt-4">
-            <Button
-              variant="velvet"
-              size="lg"
-              className="group px-8"
-              onClick={() => setIsAllProvidersOpen(true)}
-            >
-              <Users className="w-4 h-4 mr-2" />
-              Discover All Providers in Your Area
-              <ChevronRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <p className="text-xs text-muted-foreground mt-3">
-              Browse all available specialists and compare options
-            </p>
+            {/* Discover All Providers - 4th card */}
+            <div className="glass-card p-5 flex flex-col items-center justify-center text-center hover:border-primary/30 transition-all duration-300 min-h-[200px]">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="font-serif text-lg font-medium text-foreground mb-2">
+                Discover More
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Browse all available specialists
+              </p>
+              <Button
+                variant="glass"
+                size="sm"
+                className="group"
+                onClick={() => setIsAllProvidersOpen(true)}
+              >
+                View All Providers
+                <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </div>
           </div>
         </div>
       )}
