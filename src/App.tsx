@@ -20,6 +20,7 @@ import BookingsPage from "@/pages/dashboard/BookingsPage";
 import AftercarePage from "@/pages/dashboard/AftercarePage";
 import ProfilePage from "@/pages/dashboard/ProfilePage";
 import QuickBookPage from "@/pages/dashboard/QuickBookPage";
+import BenefitsPage from "@/pages/dashboard/BenefitsPage";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="aftercare" element={<AftercarePage />} />
               <Route path="profile" element={<ProfilePage />} />
               <Route path="quick-book" element={<QuickBookPage />} />
+              <Route path="benefits" element={<BenefitsPage />} />
             </Route>
 
             {/* Catch-all */}
