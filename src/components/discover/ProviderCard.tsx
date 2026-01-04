@@ -190,23 +190,47 @@ export const ProviderCard = ({
         {/* Badges Section with White Gradient Background */}
         {(isConciergePick || isBestValue || isSoonestAvailable) && (
           <div 
-            className="relative -mx-7 md:-mx-8 -mb-7 md:-mb-8 mt-4 px-7 md:px-8 py-4 flex items-center justify-center gap-3"
+            className="relative -mx-7 md:-mx-8 -mb-7 md:-mb-8 mt-4 px-7 md:px-8 py-5 flex items-center justify-center gap-3"
             style={{
               background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0.15) 100%)",
             }}
           >
             {isConciergePick && (
-              <span className="font-serif text-[10px] md:text-[11px] text-white">
-                ⭐ Concierge Pick
+              <span 
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-serif text-[11px] md:text-[12px] font-medium"
+                style={{
+                  background: "linear-gradient(135deg, rgba(201,169,97,0.2) 0%, rgba(212,175,55,0.15) 100%)",
+                  border: "1px solid rgba(201,169,97,0.4)",
+                  color: "#d4af37",
+                }}
+              >
+                <span className="text-sm">⭐</span>
+                Concierge Pick
               </span>
             )}
             {isBestValue && (
-              <span className="text-[10px] md:text-[11px] text-white">
+              <span 
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] md:text-[12px] font-medium"
+                style={{
+                  background: "linear-gradient(135deg, rgba(94,234,212,0.15) 0%, rgba(45,212,191,0.1) 100%)",
+                  border: "1px solid rgba(94,234,212,0.4)",
+                  color: "#5eead4",
+                }}
+              >
+                <span className="text-sm">💎</span>
                 Best Value
               </span>
             )}
             {isSoonestAvailable && !isBestValue && !isConciergePick && (
-              <span className="text-[10px] md:text-[11px] text-white">
+              <span 
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] md:text-[12px] font-medium"
+                style={{
+                  background: "linear-gradient(135deg, rgba(56,189,248,0.15) 0%, rgba(14,165,233,0.1) 100%)",
+                  border: "1px solid rgba(56,189,248,0.4)",
+                  color: "#38bdf8",
+                }}
+              >
+                <span className="text-sm">⚡</span>
                 Soonest Available
               </span>
             )}
