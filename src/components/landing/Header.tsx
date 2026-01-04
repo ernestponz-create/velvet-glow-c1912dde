@@ -33,7 +33,7 @@ const Header = () => {
                 Sign In
               </Button>
             </Link>
-            <Link to="/dashboard">
+            <Link to="/onboarding">
               <Button variant="elegant" size="sm">
                 Request Access
               </Button>
