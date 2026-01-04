@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { Sparkles, Calendar, Search, MessageCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import MembershipTierCard from "@/components/membership/MembershipTierCard";
+import MembershipTierCard, { TierProgressCard } from "@/components/membership/MembershipTierCard";
 
 const DashboardHome = () => {
   const { profile, user } = useAuth();
@@ -106,6 +106,14 @@ const DashboardHome = () => {
             );
           })}
         </div>
+
+        {/* Tier Progress below quick actions */}
+        <div className="mt-4">
+          <TierProgressCard 
+            currentTier={profile?.computed_tier} 
+            totalSpend={profile?.total_spend} 
+          />
+        </div>
       </div>
     );
   }
@@ -191,6 +199,14 @@ const DashboardHome = () => {
             </Link>
           );
         })}
+      </div>
+
+      {/* Tier Progress below quick actions */}
+      <div className="mt-6 max-w-md mx-auto">
+        <TierProgressCard 
+          currentTier={profile?.computed_tier} 
+          totalSpend={profile?.total_spend} 
+        />
       </div>
     </div>
   );

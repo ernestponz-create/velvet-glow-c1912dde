@@ -125,22 +125,6 @@ const MembershipTierCard = ({ currentTier, totalSpend, compact = false }: Member
         </div>
       )}
 
-      {/* Progress to next tier */}
-      {nextTier && nextBenefit && (
-        <div className="pt-3 border-t border-border/50">
-          <div className="flex justify-between text-xs mb-2">
-            <span className="text-muted-foreground">Progress to {tierConfig[nextTier].label}</span>
-            <span className="text-foreground">${spendToNext.toLocaleString()} to go</span>
-          </div>
-          <div className="h-1.5 bg-muted/50 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-primary/60 to-primary rounded-full transition-all"
-              style={{ width: `${Math.min(progressPercent, 100)}%` }}
-            />
-          </div>
-        </div>
-      )}
-
       {tier === 'elite' && (
         <div className="pt-3 border-t border-border/50">
           <p className="text-xs text-center text-muted-foreground">
@@ -148,6 +132,55 @@ const MembershipTierCard = ({ currentTier, totalSpend, compact = false }: Member
           </p>
         </div>
       )}
+    </div>
+  );
+};
+
+// Separate component for tier progress
+export const TierProgressCard = ({ currentTier, totalSpend }: { currentTier: 'member' | 'premium' | 'luxury' | 'elite' | null; totalSpend: number | null }) => {
+  const [benefits, setBenefits] = useState<TierBenefit[]>([]);
+  const tier = currentTier || 'member';
+  const spend = totalSpend || 0;
+
+  useEffect(() => {
+    const fetchBenefits = async () => {
+      const { data } = await supabase
+        .from("member_benefits")
+        .select("*")
+        .order("spend_threshold", { ascending: true });
+      
+      if (data) {
+        setBenefits(data as TierBenefit[]);
+      }
+    };
+    fetchBenefits();
+  }, []);
+
+  const currentBenefit = benefits.find(b => b.tier === tier);
+  const currentTierIndex = tierOrder.indexOf(tier);
+  const nextTier = currentTierIndex < tierOrder.length - 1 ? tierOrder[currentTierIndex + 1] : null;
+  const nextBenefit = nextTier ? benefits.find(b => b.tier === nextTier) : null;
+  const spendToNext = nextBenefit ? nextBenefit.spend_threshold - spend : 0;
+  const progressPercent = nextBenefit 
+    ? ((spend - (currentBenefit?.spend_threshold || 0)) / (nextBenefit.spend_threshold - (currentBenefit?.spend_threshold || 0))) * 100
+    : 100;
+
+  if (tier === 'elite' || !nextTier || !nextBenefit) {
+    return null;
+  }
+
+  return (
+    <div className="glass-card p-4 border border-border/50">
+      <div className="flex justify-between text-xs mb-2">
+        <span className="text-muted-foreground">Progress to {tierConfig[nextTier].label}</span>
+        <span className="text-foreground">${spendToNext.toLocaleString()} to go</span>
+      </div>
+      <div className="h-1.5 bg-muted/50 rounded-full overflow-hidden">
+        <div 
+          className="h-full bg-gradient-to-r from-primary/60 to-primary rounded-full transition-all"
+          style={{ width: `${Math.min(progressPercent, 100)}%` }}
+        />
+      </div>
     </div>
   );
 };
