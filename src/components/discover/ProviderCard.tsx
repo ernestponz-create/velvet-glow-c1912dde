@@ -179,7 +179,7 @@ export const ProviderCard = ({
         {/* CTA Button */}
         <Button 
           variant="outline"
-          className="w-full h-12 rounded-xl text-sm font-medium transition-all duration-300
+          className="w-full h-12 rounded-xl text-sm font-medium transition-all duration-300 relative z-10
             bg-transparent border-[#d4af37]/60 text-[#d4af37]
             hover:bg-gradient-to-r hover:from-[#d4af37] hover:to-[#c9a961] hover:text-black hover:border-transparent"
           onClick={onBook}
@@ -187,21 +187,26 @@ export const ProviderCard = ({
           Book Now
         </Button>
 
-        {/* Badges - Below Button */}
+        {/* Badges Section with White Gradient Background */}
         {(isConciergePick || isBestValue || isSoonestAvailable) && (
-          <div className="flex items-center justify-center gap-3 mt-4 text-white/80">
+          <div 
+            className="relative -mx-7 md:-mx-8 -mb-7 md:-mb-8 mt-4 px-7 md:px-8 py-4 flex items-center justify-center gap-3"
+            style={{
+              background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0.15) 100%)",
+            }}
+          >
             {isConciergePick && (
-              <span className="font-serif text-[10px] md:text-[11px]">
+              <span className="font-serif text-[10px] md:text-[11px] text-white">
                 ⭐ Concierge Pick
               </span>
             )}
             {isBestValue && (
-              <span className="text-[10px] md:text-[11px]">
+              <span className="text-[10px] md:text-[11px] text-white">
                 Best Value
               </span>
             )}
             {isSoonestAvailable && !isBestValue && !isConciergePick && (
-              <span className="text-[10px] md:text-[11px]">
+              <span className="text-[10px] md:text-[11px] text-white">
                 Soonest Available
               </span>
             )}
