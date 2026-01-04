@@ -214,14 +214,8 @@ const QuickBookPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto pb-20">
-      {/* Hero */}
-      <div className="text-center py-12 md:py-16">
-        <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight">
-          Book or <span className="text-gradient italic">Rebook</span> Your Treatment
-        </h1>
-      </div>
-
-      <div className="mb-12">
+      {/* Procedure Filter */}
+      <div className="pt-8 pb-6">
         <div className="flex flex-wrap justify-center gap-3">
           {filteredProcedures.map((proc) => {
             const isSelected = selectedProcedure === proc.slug;
@@ -248,6 +242,13 @@ const QuickBookPage = () => {
             );
           })}
         </div>
+      </div>
+
+      {/* Hero */}
+      <div className="text-center py-8 md:py-12 mb-8">
+        <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight">
+          Book or <span className="text-gradient italic">Rebook</span> Your Treatment
+        </h1>
       </div>
 
       {/* Main Content */}
