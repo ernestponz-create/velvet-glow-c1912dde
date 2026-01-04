@@ -1,4 +1,5 @@
 import { Sparkles } from "lucide-react";
+import { procedureImages } from "@/assets/procedures";
 
 interface Procedure {
   id: string;
@@ -31,7 +32,16 @@ const ProcedureCard = ({ procedure, isRecommended, onClick }: ProcedureCardProps
       <article className="glass-card overflow-hidden transition-all duration-300 hover:border-primary/30 glow-hover">
         {/* Image */}
         <div className="relative aspect-[4/3] bg-gradient-to-br from-secondary to-muted overflow-hidden">
-          {/* Placeholder gradient overlay */}
+          {/* Procedure image */}
+          {procedureImages[procedure.slug] && (
+            <img 
+              src={procedureImages[procedure.slug]} 
+              alt={procedure.name}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          )}
+          
+          {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
           
           {/* Cinematic overlay effect */}
