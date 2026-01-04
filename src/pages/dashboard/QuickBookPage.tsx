@@ -136,12 +136,7 @@ const QuickBookPage = () => {
   const { conciergePickId, lowestPriceId, closestAppointmentId } = useMemo(() => {
     if (filteredProviders.length === 0) return { conciergePickId: null, lowestPriceId: null, closestAppointmentId: null };
     
-    // Concierge's Pick: highest rated
-    const topRated = filteredProviders.reduce((prev, curr) => 
-      Number(curr.rating) > Number(prev.rating) ? curr : prev
-    );
-    
-    // Lowest Price: provider with lowest base_price
+    // Best Value: lowest price
     const withPrices = filteredProviders.filter(p => p.base_price != null);
     const lowestPrice = withPrices.length > 0
       ? withPrices.reduce((prev, curr) => 
@@ -149,16 +144,26 @@ const QuickBookPage = () => {
         )
       : null;
     
-    // Closest Appointment: earliest next_available_date
+    // Concierge Pick: highest rating among lowest priced providers
+    // Find all providers at or near the lowest price (within 10% of lowest)
+    const lowestPriceValue = lowestPrice?.base_price || 9999;
+    const budgetFriendly = withPrices.filter(p => (p.base_price || 9999) <= lowestPriceValue * 1.1);
+    const conciergePick = budgetFriendly.length > 0
+      ? budgetFriendly.reduce((prev, curr) => 
+          Number(curr.rating) > Number(prev.rating) ? curr : prev
+        )
+      : lowestPrice;
+    
+    // Soonest: earliest next_available_date
     const withDates = filteredProviders.filter(p => p.next_available_date);
     const closestAppt = withDates.length > 0 
       ? withDates.reduce((prev, curr) => 
           new Date(curr.next_available_date!) < new Date(prev.next_available_date!) ? curr : prev
         )
-      : filteredProviders[0];
+      : null;
     
     return { 
-      conciergePickId: topRated?.id || null,
+      conciergePickId: conciergePick?.id || null,
       lowestPriceId: lowestPrice?.id || null,
       closestAppointmentId: closestAppt?.id || null
     };
