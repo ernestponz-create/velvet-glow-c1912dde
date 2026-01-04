@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { Star, MapPin, X, Check, ArrowRight, Sparkles, Tag, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { formatPriceRange, getConciergePrice } from "@/lib/pricing";
+import QuickBookModal from "@/components/booking/QuickBookModal";
 
 interface Provider {
   id: string;
@@ -57,6 +57,10 @@ const QuickBookPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedForCompare, setSelectedForCompare] = useState<Set<string>>(new Set());
   const [showComparison, setShowComparison] = useState(false);
+  const [bookingModal, setBookingModal] = useState<{ isOpen: boolean; provider: Provider | null }>({
+    isOpen: false,
+    provider: null,
+  });
 
   // Fetch providers and past bookings
   useEffect(() => {
@@ -357,11 +361,14 @@ const QuickBookPage = () => {
                       </p>
                     )}
                     
-                    <Link to={`/dashboard/discover/${selectedProcedure || "botox"}`}>
-                      <Button variant="velvet" size="sm" className="w-full">
-                        Book Now
-                      </Button>
-                    </Link>
+                    <Button 
+                      variant="velvet" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => setBookingModal({ isOpen: true, provider })}
+                    >
+                      Book Now
+                    </Button>
                   </div>
                   );
                 })}
@@ -439,11 +446,17 @@ const QuickBookPage = () => {
                       })}
                     </p>
                     
-                    <Link to={`/dashboard/discover/${booking.procedure_slug}`}>
-                      <Button variant="velvet" size="sm" className="w-full">
-                        Rebook with Same Provider
-                      </Button>
-                    </Link>
+                    <Button 
+                      variant="velvet" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => booking.provider && setBookingModal({ 
+                        isOpen: true, 
+                        provider: booking.provider 
+                      })}
+                    >
+                      Rebook with Same Provider
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -524,17 +537,28 @@ const QuickBookPage = () => {
                     </div>
                   </div>
                   
-                  <Link to={`/dashboard/discover/${selectedProcedure || item.booking?.procedure_slug || "botox"}`}>
-                    <Button variant="velvet" className="w-full">
-                      {item.type === "past" ? "Rebook Now" : "Book Now"}
-                    </Button>
-                  </Link>
+                  <Button 
+                    variant="velvet" 
+                    className="w-full"
+                    onClick={() => setBookingModal({ isOpen: true, provider: item.provider })}
+                  >
+                    {item.type === "past" ? "Rebook Now" : "Book Now"}
+                  </Button>
                 </div>
               ))}
             </div>
           </div>
         </div>
       )}
+
+      {/* Quick Book Modal */}
+      <QuickBookModal
+        isOpen={bookingModal.isOpen}
+        onClose={() => setBookingModal({ isOpen: false, provider: null })}
+        provider={bookingModal.provider}
+        procedureSlug={selectedProcedure || "botox"}
+        procedureName={procedures.find(p => p.slug === (selectedProcedure || "botox"))?.name || "Treatment"}
+      />
     </div>
   );
 };
