@@ -1,5 +1,6 @@
 import { Sparkles } from "lucide-react";
 import { procedureImages } from "@/assets/procedures";
+import { cn } from "@/lib/utils";
 
 interface Procedure {
   id: string;
@@ -15,6 +16,7 @@ interface ProcedureCardProps {
   procedure: Procedure;
   isRecommended?: boolean;
   onClick?: () => void;
+  compact?: boolean;
 }
 
 const investmentLabels: Record<string, string> = {
@@ -23,15 +25,18 @@ const investmentLabels: Record<string, string> = {
   exclusive: "Exclusive",
 };
 
-const ProcedureCard = ({ procedure, isRecommended, onClick }: ProcedureCardProps) => {
+const ProcedureCard = ({ procedure, isRecommended, onClick, compact }: ProcedureCardProps) => {
   return (
     <button
       onClick={onClick}
       className="group block text-left w-full"
     >
-      <article className="glass-card overflow-hidden transition-all duration-300 hover:border-primary/30 glow-hover">
+      <article className="glass-card overflow-hidden transition-all duration-300 hover:border-primary/30 glow-hover h-full">
         {/* Image */}
-        <div className="relative aspect-[4/3] bg-gradient-to-br from-secondary to-muted overflow-hidden">
+        <div className={cn(
+          "relative bg-gradient-to-br from-secondary to-muted overflow-hidden",
+          compact ? "aspect-square" : "aspect-[4/3]"
+        )}>
           {/* Procedure image */}
           {procedureImages[procedure.slug] && (
             <img 
@@ -49,30 +54,46 @@ const ProcedureCard = ({ procedure, isRecommended, onClick }: ProcedureCardProps
           
           {/* Recommended badge */}
           {isRecommended && (
-            <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm">
-              <Sparkles className="w-3 h-3 text-primary-foreground" />
-              <span className="text-[10px] font-medium uppercase tracking-wider text-primary-foreground">
-                Recommended
-              </span>
+            <div className={cn(
+              "absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/90 backdrop-blur-sm",
+              compact && "px-1.5"
+            )}>
+              <Sparkles className={cn("text-primary-foreground", compact ? "w-2.5 h-2.5" : "w-3 h-3")} />
+              {!compact && (
+                <span className="text-[10px] font-medium uppercase tracking-wider text-primary-foreground">
+                  Recommended
+                </span>
+              )}
             </div>
           )}
 
           {/* Investment level badge */}
-          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-background/60 backdrop-blur-sm border border-glass-border">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+          <div className={cn(
+            "absolute top-2 right-2 px-2 py-0.5 rounded-full bg-background/60 backdrop-blur-sm border border-glass-border",
+            compact && "px-1.5"
+          )}>
+            <span className={cn(
+              "font-medium uppercase tracking-wider text-muted-foreground",
+              compact ? "text-[8px]" : "text-[10px]"
+            )}>
               {investmentLabels[procedure.investment_level]}
             </span>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-5">
-          <h3 className="font-serif text-xl md:text-2xl font-medium tracking-tight mb-2 group-hover:text-primary transition-colors">
+        <div className={cn("p-4", compact ? "p-3" : "p-5")}>
+          <h3 className={cn(
+            "font-serif font-medium tracking-tight mb-1 group-hover:text-primary transition-colors",
+            compact ? "text-sm" : "text-xl md:text-2xl mb-2"
+          )}>
             {procedure.name}
           </h3>
-          <p className="text-sm text-muted-foreground italic leading-relaxed">
-            "{procedure.benefit_phrase}"
-          </p>
+          {!compact && (
+            <p className="text-sm text-muted-foreground italic leading-relaxed">
+              "{procedure.benefit_phrase}"
+            </p>
+          )}
         </div>
       </article>
     </button>

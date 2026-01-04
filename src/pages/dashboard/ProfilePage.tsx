@@ -1,11 +1,13 @@
-import { User, Settings, LogOut } from "lucide-react";
+import { User, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const ProfilePage = () => {
   const { profile, user, signOut } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const handleSignOut = async () => {
     await signOut();
@@ -14,6 +16,80 @@ const ProfilePage = () => {
 
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "Guest";
 
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="pt-2">
+        {/* Profile header */}
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center mx-auto mb-3">
+            <User className="w-8 h-8 text-primary" />
+          </div>
+          <h1 className="font-serif text-xl font-medium tracking-tight mb-1">
+            {displayName}
+          </h1>
+          <p className="text-muted-foreground text-xs">{user?.email}</p>
+        </div>
+
+        <div className="glass-card p-4 space-y-3">
+          <h2 className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
+            Your Preferences
+          </h2>
+          
+          {profile?.age_range && (
+            <div className="flex justify-between py-2 border-b border-border/50">
+              <span className="text-muted-foreground text-sm">Age Range</span>
+              <span className="text-foreground text-sm">{profile.age_range}</span>
+            </div>
+          )}
+          
+          {profile?.location_city && (
+            <div className="flex justify-between py-2 border-b border-border/50">
+              <span className="text-muted-foreground text-sm">Location</span>
+              <span className="text-foreground text-sm">{profile.location_city}</span>
+            </div>
+          )}
+          
+          {profile?.budget_tier && (
+            <div className="flex justify-between py-2 border-b border-border/50">
+              <span className="text-muted-foreground text-sm">Investment Tier</span>
+              <span className="text-foreground capitalize text-sm">{profile.budget_tier}</span>
+            </div>
+          )}
+
+          {profile?.main_concerns && profile.main_concerns.length > 0 && (
+            <div className="py-2">
+              <span className="text-muted-foreground block mb-2 text-sm">Main Concerns</span>
+              <div className="flex flex-wrap gap-2">
+                {profile.main_concerns.map((concern) => (
+                  <span
+                    key={concern}
+                    className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary"
+                  >
+                    {concern.replace("-", " ")}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-4">
+          <Button
+            variant="glass"
+            size="default"
+            className="w-full"
+            onClick={handleSignOut}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop Layout
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-10">
