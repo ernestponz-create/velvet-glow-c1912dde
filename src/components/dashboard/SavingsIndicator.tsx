@@ -10,9 +10,15 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
+interface SavingsData {
+  totalSavings: number;
+  bookingCount: number;
+  memberSince: number;
+}
+
 const SavingsIndicator = () => {
-  const { user } = useAuth();
-  const [totalSavings, setTotalSavings] = useState<number | null>(null);
+  const { user, profile } = useAuth();
+  const [savingsData, setSavingsData] = useState<SavingsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -23,6 +29,7 @@ const SavingsIndicator = () => {
 
     const fetchSavings = async () => {
       try {
+        // Fetch completed bookings with pricing
         const { data, error } = await supabase
           .from("bookings")
           .select("market_highest_price, price_paid")
@@ -39,23 +46,33 @@ const SavingsIndicator = () => {
             const paidPrice = booking.price_paid || 0;
             return acc + Math.max(0, marketPrice - paidPrice);
           }, 0);
-          setTotalSavings(savings);
+
+          // Get member since year from user created_at
+          const memberYear = user.created_at 
+            ? new Date(user.created_at).getFullYear() 
+            : new Date().getFullYear();
+
+          setSavingsData({
+            totalSavings: savings,
+            bookingCount: data.length,
+            memberSince: memberYear,
+          });
         } else {
-          setTotalSavings(null);
+          setSavingsData(null);
         }
       } catch (error) {
         console.error("Error fetching savings:", error);
-        setTotalSavings(null);
+        setSavingsData(null);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchSavings();
-  }, [user]);
+  }, [user, profile]);
 
   // Don't show if loading, no user, or no savings
-  if (isLoading || !user || totalSavings === null || totalSavings <= 0) {
+  if (isLoading || !user || !savingsData || savingsData.totalSavings <= 0) {
     return null;
   }
 
@@ -64,9 +81,10 @@ const SavingsIndicator = () => {
     currency: "GBP",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(totalSavings);
+  }).format(savingsData.totalSavings);
 
-  const hasHighSavings = totalSavings > 500;
+  const hasHighSavings = savingsData.totalSavings > 500;
+  const bookingText = savingsData.bookingCount === 1 ? "booking" : "bookings";
 
   return (
     <TooltipProvider>
@@ -74,7 +92,7 @@ const SavingsIndicator = () => {
         <TooltipTrigger asChild>
           <div
             className={cn(
-              "relative flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-default transition-all duration-300",
+              "relative flex items-center gap-2 px-3 py-1.5 rounded-full cursor-default transition-all duration-300",
               "border border-primary/30 bg-glass/40 backdrop-blur-sm",
               "hover:border-primary/50 hover:bg-primary/5",
               hasHighSavings && "savings-glow"
@@ -85,10 +103,17 @@ const SavingsIndicator = () => {
               <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" />
             )}
             
-            {/* Savings text */}
-            <span className="text-xs font-medium text-pearl whitespace-nowrap">
-              Saved {formattedSavings}
-            </span>
+            {/* Member info */}
+            <div className="flex items-center gap-1.5 text-xs whitespace-nowrap">
+              <span className="text-muted-foreground">Member since {savingsData.memberSince}</span>
+              <span className="text-primary/50">·</span>
+              <span className="font-medium text-pearl">
+                Saved {formattedSavings}
+              </span>
+              <span className="text-muted-foreground">
+                on {savingsData.bookingCount} {bookingText}
+              </span>
+            </div>
 
             {/* Subtle gradient overlay for high savings */}
             {hasHighSavings && (
@@ -98,10 +123,10 @@ const SavingsIndicator = () => {
         </TooltipTrigger>
         <TooltipContent 
           side="bottom" 
-          className="max-w-[240px] bg-[hsl(230_20%_12%)] border-glass-border text-center"
+          className="max-w-[260px] bg-[hsl(230_20%_12%)] border-glass-border text-center"
         >
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Savings calculated as the difference between market highest price at booking time and your exclusive concierge rate
+            Your exclusive concierge savings compared to typical market rates at time of booking
           </p>
         </TooltipContent>
       </Tooltip>
