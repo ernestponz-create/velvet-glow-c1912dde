@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { icon: Home, label: "Home", path: "/dashboard" },
   { icon: Sparkles, label: "Discover", path: "/dashboard/discover" },
-  { icon: Gift, label: "Benefits", path: "/dashboard/benefits" },
   { icon: Calendar, label: "Book", path: "/dashboard/quick-book" },
   { icon: User, label: "Profile", path: "/dashboard/profile" },
+  { icon: Gift, label: "Benefits", path: "/dashboard/benefits" },
 ];
 
 const MobileBottomNav = () => {
