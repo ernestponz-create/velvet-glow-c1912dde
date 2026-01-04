@@ -189,28 +189,19 @@ export const ProviderCard = ({
 
         {/* Badges - Below Button */}
         {(isConciergePick || isBestValue || isSoonestAvailable) && (
-          <div className="flex items-center justify-center gap-3 mt-4">
+          <div className="flex items-center justify-center gap-3 mt-4 text-white/80">
             {isConciergePick && (
-              <span 
-                className="font-serif text-[10px] md:text-[11px]"
-                style={{ color: "#c9a961" }}
-              >
+              <span className="font-serif text-[10px] md:text-[11px]">
                 ⭐ Concierge Pick
               </span>
             )}
             {isBestValue && (
-              <span 
-                className="text-[10px] md:text-[11px]"
-                style={{ color: "#5eead4" }}
-              >
+              <span className="text-[10px] md:text-[11px]">
                 Best Value
               </span>
             )}
             {isSoonestAvailable && !isBestValue && !isConciergePick && (
-              <span 
-                className="text-[10px] md:text-[11px]"
-                style={{ color: "rgba(255,255,255,0.6)" }}
-              >
+              <span className="text-[10px] md:text-[11px]">
                 Soonest Available
               </span>
             )}
