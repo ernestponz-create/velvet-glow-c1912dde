@@ -249,7 +249,7 @@ const ProcedureDetailPage = () => {
           <div className="flex items-center gap-3 mb-6">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
             <h2 className="font-serif text-xl md:text-2xl text-center text-foreground">
-              Your Velvet Concierge Recommendations
+              Your DermicaIQ Concierge Recommendations
             </h2>
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
           </div>

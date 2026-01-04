@@ -12,7 +12,7 @@ const Features = () => {
       icon: Clock,
       title: "Priority Access",
       description:
-        "Skip the waitlists. As a Velvet member, you receive priority scheduling at the world's most sought-after clinics.",
+        "Skip the waitlists. As a DermicaIQ member, you receive priority scheduling at the world's most sought-after clinics.",
     },
     {
       icon: Heart,
@@ -28,7 +28,7 @@ const Features = () => {
         {/* Section header */}
         <div className="text-center mb-16 md:mb-20">
           <p className="text-primary/80 text-sm tracking-[0.3em] uppercase mb-4">
-            The Velvet Experience
+            The DermicaIQ Experience
           </p>
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight">
             Exceptional Care,
