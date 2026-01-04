@@ -1,6 +1,4 @@
-import { Link } from "react-router-dom";
 import { Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface Procedure {
   id: string;
@@ -15,6 +13,7 @@ interface Procedure {
 interface ProcedureCardProps {
   procedure: Procedure;
   isRecommended?: boolean;
+  onClick?: () => void;
 }
 
 const investmentLabels: Record<string, string> = {
@@ -23,11 +22,11 @@ const investmentLabels: Record<string, string> = {
   exclusive: "Exclusive",
 };
 
-const ProcedureCard = ({ procedure, isRecommended }: ProcedureCardProps) => {
+const ProcedureCard = ({ procedure, isRecommended, onClick }: ProcedureCardProps) => {
   return (
-    <Link
-      to={`/dashboard/discover/${procedure.slug}`}
-      className="group block"
+    <button
+      onClick={onClick}
+      className="group block text-left w-full"
     >
       <article className="glass-card overflow-hidden transition-all duration-300 hover:border-primary/30 glow-hover">
         {/* Image */}
@@ -66,7 +65,7 @@ const ProcedureCard = ({ procedure, isRecommended }: ProcedureCardProps) => {
           </p>
         </div>
       </article>
-    </Link>
+    </button>
   );
 };
 

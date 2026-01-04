@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import ProcedureCard from "@/components/discover/ProcedureCard";
 import ProcedureFilter from "@/components/discover/ProcedureFilter";
+import ConciergeSheet from "@/components/discover/ConciergeSheet";
 import { Button } from "@/components/ui/button";
 
 interface Procedure {
@@ -52,6 +53,17 @@ const DiscoverPage = () => {
   const [timeframeFilter, setTimeframeFilter] = useState("");
   const [investmentFilter, setInvestmentFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedProcedure, setSelectedProcedure] = useState<Procedure | null>(null);
+  const [isConciergeOpen, setIsConciergeOpen] = useState(false);
+
+  const handleProcedureClick = (procedure: Procedure) => {
+    setSelectedProcedure(procedure);
+    setIsConciergeOpen(true);
+  };
+
+  const handleConciergeClose = () => {
+    setIsConciergeOpen(false);
+  };
 
   useEffect(() => {
     const fetchProcedures = async () => {
@@ -220,6 +232,7 @@ const DiscoverPage = () => {
               key={procedure.id}
               procedure={procedure}
               isRecommended={isRecommended(procedure)}
+              onClick={() => handleProcedureClick(procedure)}
             />
           ))}
         </div>
@@ -233,6 +246,13 @@ const DiscoverPage = () => {
           </Button>
         </div>
       )}
+
+      {/* Concierge Recommendations Sheet */}
+      <ConciergeSheet
+        procedure={selectedProcedure}
+        isOpen={isConciergeOpen}
+        onClose={handleConciergeClose}
+      />
     </div>
   );
 };
