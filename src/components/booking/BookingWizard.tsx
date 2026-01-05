@@ -49,11 +49,7 @@ const investmentLabels: Record<string, { label: string; range: string }> = {
   exclusive: { label: "Exclusive", range: "$4,000+" },
 };
 
-// Fallback time slots when no real availability exists
-const fallbackTimeSlots = [
-  "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
-  "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
-];
+// No static fallback - bookings are now fully dynamic based on availability
 
 const BookingWizard = ({
   isOpen,
@@ -111,11 +107,10 @@ const BookingWizard = ({
     }
   }, [isOpen, provider]);
 
-  // Get unique available dates from slots
+  // Get unique available dates from slots - no fallback, only real availability
   const availableDates = useMemo(() => {
     if (availabilitySlots.length === 0) {
-      // Fallback to next 14 days if no real availability
-      return Array.from({ length: 14 }, (_, i) => addDays(new Date(), i + 1));
+      return [];
     }
     
     const uniqueDates = new Set<string>();
@@ -127,14 +122,9 @@ const BookingWizard = ({
     return Array.from(uniqueDates).map(dateStr => parseISO(dateStr));
   }, [availabilitySlots]);
 
-  // Get available time slots for selected date
+  // Get available time slots for selected date - no fallback
   const timeSlotsForDate = useMemo(() => {
-    if (!selectedDate) return [];
-    
-    if (availabilitySlots.length === 0) {
-      // Fallback to static times
-      return fallbackTimeSlots.map(time => ({ time, slotId: null, staffName: null }));
-    }
+    if (!selectedDate || availabilitySlots.length === 0) return [];
 
     const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
     const slotsForDay = availabilitySlots.filter(slot => {
@@ -226,6 +216,17 @@ const BookingWizard = ({
         .single();
 
       if (bookingError) throw bookingError;
+
+      // Mark the availability slot as booked
+      if (selectedSlotId) {
+        await supabase
+          .from("availability_slots")
+          .update({ 
+            slot_type: "booked",
+            booking_id: booking.id 
+          })
+          .eq("id", selectedSlotId);
+      }
 
       // Create CRM tasks
       const confirmationDue = addDays(new Date(), 1);
@@ -462,16 +463,25 @@ const BookingWizard = ({
                     <div className="flex items-center justify-center py-12">
                       <Loader2 className="w-6 h-6 animate-spin text-primary" />
                     </div>
+                  ) : !hasRealAvailability ? (
+                    /* No Availability State */
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 rounded-2xl bg-muted/30 flex items-center justify-center mx-auto mb-4">
+                        <Calendar className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="font-medium text-foreground mb-2">No Availability</h3>
+                      <p className="text-sm text-muted-foreground mb-6">
+                        This provider hasn't set up their availability yet. Please contact them directly or try another provider.
+                      </p>
+                    </div>
                   ) : (
                     <>
-                      {hasRealAvailability && (
-                        <div className="flex items-center gap-2 mb-3 px-1">
-                          <Check className="w-4 h-4 text-green-500" />
-                          <span className="text-sm text-muted-foreground">
-                            Showing real-time availability
-                          </span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2 mb-3 px-1">
+                        <Check className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-muted-foreground">
+                          Showing real-time availability
+                        </span>
+                      </div>
                       
                       <div className="glass-card p-4 mb-4">
                         <CalendarComponent
@@ -490,7 +500,7 @@ const BookingWizard = ({
                       {selectedDate && (
                         <div className="fade-up">
                           <div className="text-sm text-muted-foreground mb-3">
-                            {hasRealAvailability ? "Available times" : "Preferred time"}
+                            Available times
                           </div>
                           {timeSlotsForDate.length > 0 ? (
                             <div className="grid grid-cols-2 gap-2">
@@ -573,7 +583,7 @@ const BookingWizard = ({
                       </div>
                       {consultDate && (
                         <div className="grid grid-cols-3 gap-2">
-                          {fallbackTimeSlots.slice(0, 6).map((time) => (
+                          {["9:00 AM", "10:00 AM", "11:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"].map((time) => (
                             <button
                               key={time}
                               onClick={() => setConsultTime(time)}
