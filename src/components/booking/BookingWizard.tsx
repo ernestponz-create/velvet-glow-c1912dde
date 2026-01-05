@@ -13,18 +13,7 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
-
-interface Provider {
-  id: string;
-  name: string; // Clinic name - shown to users
-  display_name: string;
-  neighborhood: string;
-  city: string;
-  rating: number;
-  next_available_date: string | null;
-  next_available_time: string | null;
-  provider_profile_id?: string | null;
-}
+import { ProviderForBooking } from "@/types/provider";
 
 interface AvailabilitySlot {
   id: string;
@@ -37,7 +26,7 @@ interface AvailabilitySlot {
 interface BookingWizardProps {
   isOpen: boolean;
   onClose: () => void;
-  provider: Provider | null;
+  provider: ProviderForBooking | null;
   procedureSlug: string;
   procedureName: string;
   investmentLevel: string;
@@ -74,20 +63,38 @@ const BookingWizard = ({
 
   const investment = investmentLabels[investmentLevel] || investmentLabels.signature;
 
-  // Fetch real availability slots when provider changes
+  // Fetch real availability slots when provider changes - with fallback lookup
   useEffect(() => {
     const fetchAvailability = async () => {
-      if (!provider?.provider_profile_id) {
+      if (!provider) {
         setAvailabilitySlots([]);
         return;
       }
 
       setIsLoadingSlots(true);
       try {
+        // Get provider_profile_id - use passed value or look it up
+        let profileId = provider.provider_profile_id;
+        
+        if (!profileId) {
+          // Fallback: look up provider_profile_id from providers table
+          const { data: providerData } = await supabase
+            .from("providers")
+            .select("provider_profile_id")
+            .eq("id", provider.id)
+            .single();
+          profileId = providerData?.provider_profile_id;
+        }
+
+        if (!profileId) {
+          setAvailabilitySlots([]);
+          return;
+        }
+
         const { data, error } = await supabase
           .from("availability_slots")
           .select("id, start_time, end_time, slot_type, provider_id")
-          .eq("provider_id", provider.provider_profile_id)
+          .eq("provider_id", profileId)
           .eq("slot_type", "available")
           .gte("start_time", new Date().toISOString())
           .order("start_time");
