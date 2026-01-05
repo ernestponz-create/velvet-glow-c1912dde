@@ -37,6 +37,7 @@ interface Provider {
   recommendation_reason: string | null;
   procedures: string[];
   years_experience: number | null;
+  provider_profile_id: string | null;
 }
 
 const investmentLabels: Record<string, { label: string; range: string }> = {
