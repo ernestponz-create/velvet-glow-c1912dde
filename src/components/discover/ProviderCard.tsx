@@ -217,7 +217,7 @@ export const ProviderCard = ({
               <span className="text-xs text-white font-medium">
                 {provider.earliest_slot_date 
                   ? formatNextSlot(provider.earliest_slot_date, provider.earliest_slot_time)
-                  : formatNextSlot(provider.next_available_date!)}
+                  : formatNextSlot(provider.next_available_date!, provider.next_available_time)}
               </span>
             </div>
           )}
