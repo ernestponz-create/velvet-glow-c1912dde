@@ -15,6 +15,7 @@ import {
 
 interface Provider {
   id: string;
+  name: string; // Clinic name - shown to users
   display_name: string;
   neighborhood: string;
   city: string;
@@ -249,7 +250,7 @@ const QuickBookModal = ({
           booking_id: booking.id,
           type: "confirmation_call",
           title: `Confirmation call for ${procedureName}`,
-          description: `Follow up with client regarding their ${procedureName} booking with ${provider.display_name}.`,
+          description: `Follow up with client regarding their ${procedureName} booking with ${provider.name}.`,
           due_at: confirmationDue.toISOString(),
           status: "pending",
         },
@@ -326,7 +327,7 @@ const QuickBookModal = ({
                 Book {procedureName}
               </h2>
               <p className="text-sm text-muted-foreground">
-                with {provider.display_name}
+                with {provider.name}
               </p>
             </div>
 
