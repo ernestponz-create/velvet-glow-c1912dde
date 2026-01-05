@@ -21,8 +21,11 @@ Deno.serve(async (req) => {
 
     const testUsers = [
       { email: "admin@test.com", password: "Test123!", role: "admin" as const },
-      { email: "provider@test.com", password: "Test123!", role: "provider" as const, practiceType: "solo" },
-      { email: "clinic@test.com", password: "Test123!", role: "provider" as const, practiceType: "multi" },
+      { email: "provider@test.com", password: "Test123!", role: "provider" as const, practiceType: "solo", clinicName: "Solo Aesthetics", city: "New York", specialty: "Botox & Fillers" },
+      { email: "clinic@test.com", password: "Test123!", role: "provider" as const, practiceType: "multi", clinicName: "Luxe Aesthetics Clinic", city: "Beverly Hills", specialty: "Medical Spa" },
+      { email: "provider2@test.com", password: "Test123!", role: "provider" as const, practiceType: "solo", clinicName: "Manhattan Skin Studio", city: "New York", specialty: "Laser Treatments" },
+      { email: "provider3@test.com", password: "Test123!", role: "provider" as const, practiceType: "multi", clinicName: "Glow Med Spa", city: "Miami", specialty: "Body Contouring" },
+      { email: "provider4@test.com", password: "Test123!", role: "provider" as const, practiceType: "solo", clinicName: "Beverly Injectables", city: "Los Angeles", specialty: "Dermal Fillers" },
       { email: "user@test.com", password: "Test123!", role: "user" as const },
     ];
 
@@ -66,17 +69,18 @@ Deno.serve(async (req) => {
 
       // Create provider profile if provider role
       if (testUser.role === "provider") {
-        const isMultiStaff = (testUser as any).practiceType === "multi";
+        const user = testUser as typeof testUser & { practiceType: string; clinicName: string; city: string; specialty: string };
+        const isMultiStaff = user.practiceType === "multi";
         await supabaseAdmin.from("provider_profiles").upsert(
           {
             user_id: userId,
-            clinic_name: isMultiStaff ? "Luxe Aesthetics Clinic" : "Test Provider Clinic",
+            clinic_name: user.clinicName,
             practice_type: isMultiStaff ? "multi_staff" : "solo",
-            primary_specialty: isMultiStaff ? "Medical Spa" : "Botox & Fillers",
+            primary_specialty: user.specialty,
             secondary_specialties: isMultiStaff ? ["Laser Treatments", "Body Contouring", "Skincare"] : [],
-            address: isMultiStaff ? "789 Luxury Ave, Suite 200" : "456 Test Street",
-            city: isMultiStaff ? "Beverly Hills" : "New York",
-            phone: isMultiStaff ? "(310) 555-1234" : "(555) 987-6543",
+            address: `${Math.floor(Math.random() * 900) + 100} Main Street`,
+            city: user.city,
+            phone: `(555) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
             status: "approved",
             approved_at: new Date().toISOString(),
           },
