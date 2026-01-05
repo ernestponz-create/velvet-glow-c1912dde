@@ -168,7 +168,7 @@ export const ProviderCard = ({
                 to={procedureSlug ? `/dashboard/discover/${procedureSlug}` : "#"}
                 className="block text-lg md:text-xl font-semibold text-white leading-snug hover:text-[#d4af37] transition-colors truncate"
               >
-                {provider.name}
+                {provider.display_name}
               </Link>
               <span 
                 className="inline-block mt-1.5 text-[11px] uppercase tracking-wider font-medium"
@@ -256,7 +256,7 @@ export const ProviderCard = ({
 
             {/* Provider Info Header */}
             <div className="p-6 border-b border-white/10">
-              <h3 className="text-xl font-semibold text-white">{provider.name}</h3>
+              <h3 className="text-xl font-semibold text-white">{provider.display_name}</h3>
               <p className="text-sm text-white/60 mt-1">{provider.specialty} • {provider.neighborhood}</p>
             </div>
 
@@ -264,7 +264,7 @@ export const ProviderCard = ({
             <div className="relative aspect-[16/10]">
               <img
                 src={galleryImages[currentImageIndex]}
-                alt={`${provider.name} gallery image ${currentImageIndex + 1}`}
+                alt={`${provider.display_name} gallery image ${currentImageIndex + 1}`}
                 className="w-full h-full object-cover animate-fade-in"
               />
               

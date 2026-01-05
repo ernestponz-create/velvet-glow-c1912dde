@@ -238,7 +238,7 @@ const BookingWizard = ({
           booking_id: booking.id,
           type: "confirmation_call",
           title: `Confirmation call for ${procedureName}`,
-          description: `Follow up with client regarding their ${procedureName} booking with ${provider.name}. Confirm appointment details and answer any questions.`,
+          description: `Follow up with client regarding their ${procedureName} booking with ${provider.display_name}. Confirm appointment details and answer any questions.`,
           due_at: confirmationDue.toISOString(),
           status: "pending",
         },
@@ -359,7 +359,7 @@ const BookingWizard = ({
                   <div>
                     <div className="text-sm text-muted-foreground">Treatment</div>
                     <div className="font-medium text-foreground">{procedureName}</div>
-                    <div className="text-sm text-muted-foreground">with {provider.name}</div>
+                    <div className="text-sm text-muted-foreground">with {provider.display_name}</div>
                   </div>
                 </div>
               </div>
@@ -424,7 +424,7 @@ const BookingWizard = ({
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h3 className="font-serif text-lg font-medium text-foreground">
-                          {provider.name}
+                          {provider.display_name}
                         </h3>
                         <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                           <MapPin className="w-3.5 h-3.5" />

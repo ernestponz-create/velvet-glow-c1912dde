@@ -223,8 +223,8 @@ const ConciergeSheet = ({ procedure, isOpen, onClose }: ConciergeSheetProps) => 
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                     <div className="flex-1">
-                      <h3 className="font-serif text-xl font-medium text-foreground group-hover:text-primary transition-colors">
-                        {provider.name}
+                    <h3 className="font-serif text-xl font-medium text-foreground group-hover:text-primary transition-colors">
+                        {provider.display_name}
                       </h3>
                       <div className="flex items-center gap-2 mt-1.5 text-sm text-muted-foreground">
                         <MapPin className="w-3.5 h-3.5" />
