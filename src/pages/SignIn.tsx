@@ -19,11 +19,22 @@ const SignIn = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const redirectBasedOnRole = async (userId: string) => {
+    const { data: role } = await supabase.rpc('get_user_role', { _user_id: userId });
+    if (role === 'provider') {
+      navigate("/provider-dashboard");
+    } else if (role === 'admin') {
+      navigate("/admin");
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
   useEffect(() => {
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        navigate("/dashboard");
+        redirectBasedOnRole(session.user.id);
       } else {
         setCheckingAuth(false);
       }
@@ -32,7 +43,7 @@ const SignIn = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (session?.user) {
-          navigate("/dashboard");
+          redirectBasedOnRole(session.user.id);
         }
       }
     );
