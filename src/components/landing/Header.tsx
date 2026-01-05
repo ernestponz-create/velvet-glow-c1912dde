@@ -28,16 +28,12 @@ const Header = () => {
 
           {/* CTA */}
           <div className="flex items-center gap-3">
-            <Link to="/signin">
-              <Button variant="ghost" size="sm" className="hidden sm:inline-flex text-muted-foreground">
-                Sign In
-              </Button>
-            </Link>
-            <Link to="/onboarding">
-              <Button variant="elegant" size="sm">
-                Request Access
-              </Button>
-            </Link>
+            <Button variant="ghost" size="sm" className="hidden sm:inline-flex text-muted-foreground" asChild>
+              <Link to="/signin">Sign In</Link>
+            </Button>
+            <Button variant="elegant" size="sm" asChild>
+              <Link to="/onboarding">Request Access</Link>
+            </Button>
           </div>
         </div>
       </div>
