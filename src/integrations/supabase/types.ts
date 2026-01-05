@@ -707,6 +707,7 @@ export type Database = {
         Args: { _provider_id: string; _reason: string }
         Returns: boolean
       }
+      sync_all_provider_availability: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "user" | "provider" | "admin"

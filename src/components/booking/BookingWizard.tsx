@@ -464,15 +464,43 @@ const BookingWizard = ({
                       <Loader2 className="w-6 h-6 animate-spin text-primary" />
                     </div>
                   ) : !hasRealAvailability ? (
-                    /* No Availability State */
-                    <div className="text-center py-8">
+                    /* No Availability State - Improved UX */
+                    <div className="text-center py-6">
                       <div className="w-16 h-16 rounded-2xl bg-muted/30 flex items-center justify-center mx-auto mb-4">
                         <Calendar className="w-8 h-8 text-muted-foreground" />
                       </div>
-                      <h3 className="font-medium text-foreground mb-2">No Availability</h3>
-                      <p className="text-sm text-muted-foreground mb-6">
-                        This provider hasn't set up their availability yet. Please contact them directly or try another provider.
+                      <h3 className="font-serif text-xl font-medium text-foreground mb-2">
+                        Availability Coming Soon
+                      </h3>
+                      <p className="text-muted-foreground mb-4 text-sm">
+                        {provider?.display_name} is currently finalizing their booking calendar.
+                        The availability shown in our recommendations is an estimate based on their typical schedule.
                       </p>
+                      <div className="glass-card p-4 mb-6 text-left max-w-md mx-auto">
+                        <h4 className="text-sm font-medium text-foreground mb-3">What you can do:</h4>
+                        <ul className="text-sm text-muted-foreground space-y-2.5">
+                          <li className="flex items-start gap-2">
+                            <span className="text-primary mt-0.5 flex-shrink-0">•</span>
+                            <span>Check back in a few hours as we update availability frequently</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-primary mt-0.5 flex-shrink-0">•</span>
+                            <span>Browse other highly-rated providers in the same area</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-primary mt-0.5 flex-shrink-0">•</span>
+                            <span>Contact our concierge team for personalized assistance</span>
+                          </li>
+                        </ul>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <Button onClick={() => handleClose()} variant="ghost" className="order-2 sm:order-1">
+                          Browse Other Providers
+                        </Button>
+                        <Button onClick={() => handleClose()} variant="velvet" className="order-1 sm:order-2">
+                          Contact Concierge
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     <>
