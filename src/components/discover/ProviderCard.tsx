@@ -77,10 +77,7 @@ export const ProviderCard = ({
     );
   };
 
-  const formatNextSlot = (date: string | null, time?: string | null) => {
-    // Handle NULL - show honest message instead of fake date
-    if (!date) return "Contact for availability";
-    
+  const formatNextSlot = (date: string, time?: string | null) => {
     const dateStr = new Date(date).toLocaleDateString("en-GB", {
       weekday: "short",
       day: "numeric",
@@ -209,19 +206,21 @@ export const ProviderCard = ({
             </span>
           </div>
 
-          {/* Earliest Available Slot - always show with NULL handling */}
-          <div 
-            className="flex items-center gap-2 px-3 py-2 rounded-lg mb-4"
-            style={{ background: "rgba(255,255,255,0.03)" }}
-          >
-            <Clock className={`w-3.5 h-3.5 ${(provider.earliest_slot_date || provider.next_available_date) ? "text-[#d4af37]" : "text-white/30"}`} />
-            <span className="text-xs text-white/50">Next Available:</span>
-            <span className={`text-xs font-medium ${(provider.earliest_slot_date || provider.next_available_date) ? "text-white" : "text-white/40"}`}>
-              {provider.earliest_slot_date 
-                ? formatNextSlot(provider.earliest_slot_date, provider.earliest_slot_time)
-                : formatNextSlot(provider.next_available_date, provider.next_available_time)}
-            </span>
-          </div>
+          {/* Earliest Available Slot */}
+          {(provider.earliest_slot_date || provider.next_available_date) && (
+            <div 
+              className="flex items-center gap-2 px-3 py-2 rounded-lg mb-4"
+              style={{ background: "rgba(255,255,255,0.03)" }}
+            >
+              <Clock className="w-3.5 h-3.5 text-[#d4af37]" />
+              <span className="text-xs text-white/50">Next Available:</span>
+              <span className="text-xs text-white font-medium">
+                {provider.earliest_slot_date 
+                  ? formatNextSlot(provider.earliest_slot_date, provider.earliest_slot_time)
+                  : formatNextSlot(provider.next_available_date!, provider.next_available_time)}
+              </span>
+            </div>
+          )}
 
 
           {/* CTA Button */}
