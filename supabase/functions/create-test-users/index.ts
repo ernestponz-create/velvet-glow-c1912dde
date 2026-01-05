@@ -20,13 +20,27 @@ Deno.serve(async (req) => {
     );
 
     const testUsers = [
+      // Admins
       { email: "admin@test.com", password: "Test123!", role: "admin" as const },
+      { email: "admin2@test.com", password: "Test123!", role: "admin" as const },
+      
+      // Providers
       { email: "provider@test.com", password: "Test123!", role: "provider" as const, practiceType: "solo", clinicName: "Solo Aesthetics", city: "New York", specialty: "Botox & Fillers" },
       { email: "clinic@test.com", password: "Test123!", role: "provider" as const, practiceType: "multi", clinicName: "Luxe Aesthetics Clinic", city: "Beverly Hills", specialty: "Medical Spa" },
       { email: "provider2@test.com", password: "Test123!", role: "provider" as const, practiceType: "solo", clinicName: "Manhattan Skin Studio", city: "New York", specialty: "Laser Treatments" },
       { email: "provider3@test.com", password: "Test123!", role: "provider" as const, practiceType: "multi", clinicName: "Glow Med Spa", city: "Miami", specialty: "Body Contouring" },
       { email: "provider4@test.com", password: "Test123!", role: "provider" as const, practiceType: "solo", clinicName: "Beverly Injectables", city: "Los Angeles", specialty: "Dermal Fillers" },
+      { email: "provider5@test.com", password: "Test123!", role: "provider" as const, practiceType: "multi", clinicName: "SkinGlow Aesthetics", city: "Chicago", specialty: "Chemical Peels" },
+      { email: "provider6@test.com", password: "Test123!", role: "provider" as const, practiceType: "solo", clinicName: "Radiance Clinic", city: "San Francisco", specialty: "Microneedling" },
+      { email: "provider7@test.com", password: "Test123!", role: "provider" as const, practiceType: "multi", clinicName: "Eternal Youth Med Spa", city: "Dallas", specialty: "Thread Lifts" },
+      { email: "provider8@test.com", password: "Test123!", role: "provider" as const, practiceType: "solo", clinicName: "Ageless Beauty", city: "Seattle", specialty: "PRP Therapy" },
+      
+      // Regular Users
       { email: "user@test.com", password: "Test123!", role: "user" as const },
+      { email: "user2@test.com", password: "Test123!", role: "user" as const },
+      { email: "user3@test.com", password: "Test123!", role: "user" as const },
+      { email: "member@test.com", password: "Test123!", role: "user" as const },
+      { email: "vip@test.com", password: "Test123!", role: "user" as const },
     ];
 
     const results = [];
