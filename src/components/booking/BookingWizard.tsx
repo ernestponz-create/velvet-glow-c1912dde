@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, addDays, isSameDay, parseISO, startOfDay } from "date-fns";
-import { Calendar, Clock, MapPin, Star, Check, Shield, ChevronRight, ChevronLeft, Video, Sparkles, Loader2, User } from "lucide-react";
+import { Calendar, Clock, MapPin, Star, Check, Shield, ChevronRight, ChevronLeft, Video, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -31,8 +31,7 @@ interface AvailabilitySlot {
   start_time: string;
   end_time: string;
   slot_type: string;
-  staff_member_id: string | null;
-  staff_members?: { name: string } | null;
+  // Staff fields removed - clients don't need this information
 }
 
 interface BookingWizardProps {
@@ -87,7 +86,7 @@ const BookingWizard = ({
       try {
         const { data, error } = await supabase
           .from("availability_slots")
-          .select("*, staff_members(name)")
+          .select("id, start_time, end_time, slot_type, provider_id")
           .eq("provider_id", provider.provider_profile_id)
           .eq("slot_type", "available")
           .gte("start_time", new Date().toISOString())
@@ -134,7 +133,7 @@ const BookingWizard = ({
     });
 
     // Generate hourly time slots from availability ranges
-    const timeSlots: { time: string; slotId: string; staffName: string | null }[] = [];
+    const timeSlots: { time: string; slotId: string }[] = [];
     
     slotsForDay.forEach(slot => {
       const start = parseISO(slot.start_time);
@@ -146,7 +145,7 @@ const BookingWizard = ({
         timeSlots.push({
           time: timeStr,
           slotId: slot.id,
-          staffName: slot.staff_members?.name || null,
+          // No staff name - clients only see available times
         });
         current = addDays(current, 0);
         current.setHours(current.getHours() + 1);
@@ -523,12 +522,7 @@ const BookingWizard = ({
                                     <Clock className="w-3.5 h-3.5" />
                                     {slot.time}
                                   </div>
-                                  {slot.staffName && (
-                                    <div className="flex items-center gap-1 mt-1 text-xs opacity-70">
-                                      <User className="w-3 h-3" />
-                                      {slot.staffName}
-                                    </div>
-                                  )}
+                                  {/* Staff name removed - clients only see available times */}
                                 </button>
                               ))}
                             </div>
