@@ -624,7 +624,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      client_available_slots: {
+        Row: {
+          city: string | null
+          clinic_name: string | null
+          end_time: string | null
+          id: string | null
+          provider_id: string | null
+          slot_type: string | null
+          start_time: string | null
+          status: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_slots_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       approve_provider: { Args: { _provider_id: string }; Returns: boolean }
