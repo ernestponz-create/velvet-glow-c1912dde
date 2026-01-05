@@ -374,16 +374,20 @@ const QuickBookPage = () => {
                           year: "numeric"
                         })}
                       </span>
-                      {booking.provider?.next_available_date && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5" />
-                          Next: {new Date(booking.provider.next_available_date).toLocaleDateString("en-GB", {
-                            day: "numeric",
-                            month: "short"
-                          })}
-                          {booking.provider.next_available_time && ` at ${booking.provider.next_available_time.slice(0, 5)}`}
-                        </span>
-                      )}
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        {booking.provider?.next_available_date ? (
+                          <>
+                            Next: {new Date(booking.provider.next_available_date).toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "short"
+                            })}
+                            {booking.provider.next_available_time && ` at ${booking.provider.next_available_time.slice(0, 5)}`}
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground/60">Contact for availability</span>
+                        )}
+                      </span>
                     </div>
                     
                     <Button 
