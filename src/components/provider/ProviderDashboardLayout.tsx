@@ -11,23 +11,26 @@ import {
   LogOut,
   Menu,
   X,
-  ChevronLeft
+  Users
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/provider-dashboard" },
-  { icon: Calendar, label: "My Availability", path: "/provider-dashboard/availability" },
-  { icon: ClipboardList, label: "Bookings & Requests", path: "/provider-dashboard/bookings" },
-  { icon: Building2, label: "My Clinic Profile", path: "/provider-dashboard/profile" },
-  { icon: Settings, label: "Settings", path: "/provider-dashboard/settings" },
-];
 
 const ProviderDashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { providerProfile, signOut } = useProviderAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const isMultiStaff = providerProfile?.practice_type === "multi_staff";
+
+  const menuItems = [
+    { icon: LayoutDashboard, label: "Dashboard", path: "/provider-dashboard" },
+    { icon: Calendar, label: "My Availability", path: "/provider-dashboard/availability" },
+    { icon: ClipboardList, label: "Bookings & Requests", path: "/provider-dashboard/bookings" },
+    ...(isMultiStaff ? [{ icon: Users, label: "Staff", path: "/provider-dashboard/staff" }] : []),
+    { icon: Building2, label: "My Clinic Profile", path: "/provider-dashboard/profile" },
+    { icon: Settings, label: "Settings", path: "/provider-dashboard/settings" },
+  ];
 
   const handleLogout = async () => {
     await signOut();

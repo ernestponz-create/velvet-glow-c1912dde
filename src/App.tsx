@@ -36,6 +36,7 @@ import ProviderAvailabilityPage from "@/pages/provider/ProviderAvailabilityPage"
 import ProviderBookingsPage from "@/pages/provider/ProviderBookingsPage";
 import ProviderProfilePage from "@/pages/provider/ProviderProfilePage";
 import ProviderSettingsPage from "@/pages/provider/ProviderSettingsPage";
+import ProviderStaffPage from "@/pages/provider/ProviderStaffPage";
 
 // Admin
 import AdminLogin from "@/pages/AdminLogin";
@@ -103,6 +104,7 @@ const App = () => (
                   <Route index element={<ProviderDashboardHome />} />
                   <Route path="availability" element={<ProviderAvailabilityPage />} />
                   <Route path="bookings" element={<ProviderBookingsPage />} />
+                  <Route path="staff" element={<ProviderStaffPage />} />
                   <Route path="profile" element={<ProviderProfilePage />} />
                   <Route path="settings" element={<ProviderSettingsPage />} />
                 </Route>
