@@ -333,7 +333,7 @@ const QuickBookPage = () => {
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h3 className="font-medium text-lg">
-                          {booking.provider?.name || "Provider"}
+                          {booking.provider?.display_name || "Provider"}
                         </h3>
                         <p className="text-sm text-muted-foreground">{booking.procedure_name}</p>
                       </div>
@@ -444,10 +444,10 @@ const QuickBookPage = () => {
                   <div className="text-center mb-6">
                     <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                       <span className="text-2xl font-serif text-primary">
-                        {item.provider.name.charAt(0)}
+                        {item.provider.display_name.charAt(0)}
                       </span>
                     </div>
-                    <h3 className="font-medium text-lg mb-1">{item.provider.name}</h3>
+                    <h3 className="font-medium text-lg mb-1">{item.provider.display_name}</h3>
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       item.type === "past" ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"
                     }`}>

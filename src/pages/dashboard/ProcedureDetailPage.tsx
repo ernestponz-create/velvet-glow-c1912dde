@@ -269,7 +269,7 @@ const ProcedureDetailPage = () => {
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <h3 className="font-serif text-lg font-medium text-foreground">
-                      {provider.name}
+                      {provider.display_name}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
                       <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
