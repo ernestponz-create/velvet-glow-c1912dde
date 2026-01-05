@@ -19,6 +19,7 @@ interface Provider {
   image_url?: string | null;
   earliest_slot_date?: string | null; // Earliest staff availability
   earliest_slot_time?: string | null;
+  provider_profile_id?: string | null;
 }
 
 interface ProviderCardProps {
