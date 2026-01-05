@@ -27,6 +27,7 @@ export type Database = {
           recurrence_pattern: Json | null
           resource_id: string | null
           slot_type: string
+          staff_member_id: string | null
           start_time: string
           updated_at: string
         }
@@ -42,6 +43,7 @@ export type Database = {
           recurrence_pattern?: Json | null
           resource_id?: string | null
           slot_type?: string
+          staff_member_id?: string | null
           start_time: string
           updated_at?: string
         }
@@ -57,6 +59,7 @@ export type Database = {
           recurrence_pattern?: Json | null
           resource_id?: string | null
           slot_type?: string
+          staff_member_id?: string | null
           start_time?: string
           updated_at?: string
         }
@@ -73,6 +76,13 @@ export type Database = {
             columns: ["resource_id"]
             isOneToOne: false
             referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_slots_staff_member_id_fkey"
+            columns: ["staff_member_id"]
+            isOneToOne: false
+            referencedRelation: "staff_members"
             referencedColumns: ["id"]
           },
         ]
@@ -473,6 +483,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "resources_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_members: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          phone: string | null
+          provider_id: string
+          role: string
+          specialties: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          phone?: string | null
+          provider_id: string
+          role?: string
+          specialties?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          phone?: string | null
+          provider_id?: string
+          role?: string
+          specialties?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_members_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "provider_profiles"
