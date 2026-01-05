@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
           {
             user_id: userId,
             clinic_name: isMultiStaff ? "Luxe Aesthetics Clinic" : "Test Provider Clinic",
-            practice_type: isMultiStaff ? "multi" : "solo",
+            practice_type: isMultiStaff ? "multi_staff" : "solo",
             primary_specialty: isMultiStaff ? "Medical Spa" : "Botox & Fillers",
             secondary_specialties: isMultiStaff ? ["Laser Treatments", "Body Contouring", "Skincare"] : [],
             address: isMultiStaff ? "789 Luxury Ave, Suite 200" : "456 Test Street",
