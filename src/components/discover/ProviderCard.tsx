@@ -6,7 +6,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface Provider {
   id: string;
-  name: string;
+  name: string; // Clinic name - shown to users
   display_name: string;
   specialty: string;
   neighborhood: string;
@@ -17,6 +17,8 @@ interface Provider {
   next_available_time?: string | null;
   recommendation_reason: string | null;
   image_url?: string | null;
+  earliest_slot_date?: string | null; // Earliest staff availability
+  earliest_slot_time?: string | null;
 }
 
 interface ProviderCardProps {
@@ -75,12 +77,21 @@ export const ProviderCard = ({
     );
   };
 
-  const formatNextSlot = (date: string) => {
-    return new Date(date).toLocaleDateString("en-GB", {
+  const formatNextSlot = (date: string, time?: string | null) => {
+    const dateStr = new Date(date).toLocaleDateString("en-GB", {
       weekday: "short",
       day: "numeric",
       month: "short",
     });
+    if (time) {
+      // Format time from "14:00:00" to "2:00 PM"
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${dateStr} at ${hour12}:${minutes} ${ampm}`;
+    }
+    return dateStr;
   };
 
   const nextImage = () => {
@@ -150,14 +161,14 @@ export const ProviderCard = ({
 
         {/* Card Content */}
         <div className={`p-5 md:p-6 ${!hasBadge ? 'pt-6 md:pt-7' : ''}`}>
-          {/* Header: Name + Gallery */}
+          {/* Header: Clinic Name + Gallery */}
           <div className="flex justify-between items-start gap-3 mb-3">
             <div className="flex-1 min-w-0">
               <Link 
                 to={procedureSlug ? `/dashboard/discover/${procedureSlug}` : "#"}
                 className="block text-lg md:text-xl font-semibold text-white leading-snug hover:text-[#d4af37] transition-colors truncate"
               >
-                {provider.display_name}
+                {provider.name}
               </Link>
               <span 
                 className="inline-block mt-1.5 text-[11px] uppercase tracking-wider font-medium"
@@ -195,16 +206,18 @@ export const ProviderCard = ({
             </span>
           </div>
 
-          {/* Next Slot */}
-          {provider.next_available_date && (
+          {/* Earliest Available Slot */}
+          {(provider.earliest_slot_date || provider.next_available_date) && (
             <div 
               className="flex items-center gap-2 px-3 py-2 rounded-lg mb-4"
               style={{ background: "rgba(255,255,255,0.03)" }}
             >
               <Clock className="w-3.5 h-3.5 text-[#d4af37]" />
-              <span className="text-xs text-white/50">Next:</span>
+              <span className="text-xs text-white/50">Next Available:</span>
               <span className="text-xs text-white font-medium">
-                {formatNextSlot(provider.next_available_date)}
+                {provider.earliest_slot_date 
+                  ? formatNextSlot(provider.earliest_slot_date, provider.earliest_slot_time)
+                  : formatNextSlot(provider.next_available_date!)}
               </span>
             </div>
           )}
@@ -243,7 +256,7 @@ export const ProviderCard = ({
 
             {/* Provider Info Header */}
             <div className="p-6 border-b border-white/10">
-              <h3 className="text-xl font-semibold text-white">{provider.display_name}</h3>
+              <h3 className="text-xl font-semibold text-white">{provider.name}</h3>
               <p className="text-sm text-white/60 mt-1">{provider.specialty} • {provider.neighborhood}</p>
             </div>
 
@@ -251,7 +264,7 @@ export const ProviderCard = ({
             <div className="relative aspect-[16/10]">
               <img
                 src={galleryImages[currentImageIndex]}
-                alt={`${provider.display_name} gallery image ${currentImageIndex + 1}`}
+                alt={`${provider.name} gallery image ${currentImageIndex + 1}`}
                 className="w-full h-full object-cover animate-fade-in"
               />
               
