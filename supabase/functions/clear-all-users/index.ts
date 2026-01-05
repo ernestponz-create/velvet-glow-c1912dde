@@ -25,12 +25,17 @@ Deno.serve(async (req: Request) => {
       throw listError;
     }
 
+    console.log(`Found ${users.length} users to delete`);
+
     // Delete each user
     const results = [];
     for (const user of users) {
+      console.log(`Deleting user: ${user.email}`);
       const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id);
       results.push({ id: user.id, email: user.email, deleted: !error, error: error?.message });
     }
+
+    console.log(`Deleted ${results.length} users`);
 
     return new Response(
       JSON.stringify({ success: true, deleted: results.length, results }),
@@ -38,6 +43,7 @@ Deno.serve(async (req: Request) => {
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error:", message);
     return new Response(
       JSON.stringify({ success: false, error: message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
