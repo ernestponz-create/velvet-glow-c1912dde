@@ -21,7 +21,8 @@ Deno.serve(async (req) => {
 
     const testUsers = [
       { email: "admin@test.com", password: "Test123!", role: "admin" as const },
-      { email: "provider@test.com", password: "Test123!", role: "provider" as const },
+      { email: "provider@test.com", password: "Test123!", role: "provider" as const, practiceType: "solo" },
+      { email: "clinic@test.com", password: "Test123!", role: "provider" as const, practiceType: "multi" },
       { email: "user@test.com", password: "Test123!", role: "user" as const },
     ];
 
@@ -65,15 +66,17 @@ Deno.serve(async (req) => {
 
       // Create provider profile if provider role
       if (testUser.role === "provider") {
+        const isMultiStaff = (testUser as any).practiceType === "multi";
         await supabaseAdmin.from("provider_profiles").upsert(
           {
             user_id: userId,
-            clinic_name: "Test Provider Clinic",
-            practice_type: "solo",
-            primary_specialty: "Botox & Fillers",
-            address: "456 Test Street",
-            city: "New York",
-            phone: "(555) 987-6543",
+            clinic_name: isMultiStaff ? "Luxe Aesthetics Clinic" : "Test Provider Clinic",
+            practice_type: isMultiStaff ? "multi" : "solo",
+            primary_specialty: isMultiStaff ? "Medical Spa" : "Botox & Fillers",
+            secondary_specialties: isMultiStaff ? ["Laser Treatments", "Body Contouring", "Skincare"] : [],
+            address: isMultiStaff ? "789 Luxury Ave, Suite 200" : "456 Test Street",
+            city: isMultiStaff ? "Beverly Hills" : "New York",
+            phone: isMultiStaff ? "(310) 555-1234" : "(555) 987-6543",
             status: "approved",
             approved_at: new Date().toISOString(),
           },
