@@ -22,7 +22,7 @@ interface Booking {
   status: string;
   created_at: string;
   provider: {
-    display_name: string;
+    name: string;
     neighborhood: string;
     city: string;
   } | null;
@@ -63,7 +63,7 @@ const BookingsPage = () => {
         .from("bookings")
         .select(`
           *,
-          provider:providers(display_name, neighborhood, city)
+          provider:providers(name, neighborhood, city)
         `)
         .eq("user_id", user.id)
         .order("preferred_date", { ascending: true });
@@ -220,7 +220,7 @@ const BookingsPage = () => {
                             <div className={cn("flex items-center gap-1.5 text-muted-foreground", isMobile ? "text-xs" : "text-sm")}>
                               <MapPin className="w-3 h-3 flex-shrink-0" />
                               <span className="truncate">
-                                {isMobile ? booking.provider.display_name : `${booking.provider.display_name} · ${booking.provider.neighborhood}`}
+                                {isMobile ? booking.provider.name : `${booking.provider.name} · ${booking.provider.neighborhood}`}
                               </span>
                             </div>
                           )}
@@ -298,7 +298,7 @@ const BookingsPage = () => {
                           </h3>
                           <div className={cn("text-muted-foreground", isMobile ? "text-xs" : "text-sm")}>
                             {format(new Date(booking.preferred_date), isMobile ? "MMM d, yyyy" : "MMMM d, yyyy")}
-                            {booking.provider && ` · ${booking.provider.display_name}`}
+                            {booking.provider && ` · ${booking.provider.name}`}
                           </div>
                         </div>
                         <div className={cn("flex items-center gap-2", isMobile && "justify-between")}>
