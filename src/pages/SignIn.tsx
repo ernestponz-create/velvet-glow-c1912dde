@@ -20,12 +20,47 @@ const SignIn = () => {
   const { toast } = useToast();
 
   const redirectBasedOnRole = async (userId: string) => {
-    const { data: role } = await supabase.rpc('get_user_role', { _user_id: userId });
-    if (role === 'provider') {
-      navigate("/provider-dashboard");
-    } else if (role === 'admin') {
-      navigate("/admin");
-    } else {
+    try {
+      const { data: role, error: roleError } = await supabase.rpc('get_user_role', { _user_id: userId });
+      
+      if (roleError || role === null) {
+        console.error('Error fetching user role:', roleError);
+        navigate("/dashboard");
+        return;
+      }
+
+      if (role === 'provider') {
+        // Check provider profile status
+        const { data: providerProfile, error: profileError } = await supabase
+          .from('provider_profiles')
+          .select('status')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error('Error fetching provider profile:', profileError);
+          navigate("/dashboard");
+          return;
+        }
+
+        if (!providerProfile) {
+          navigate("/provider-signup");
+        } else if (providerProfile.status === 'pending') {
+          navigate("/provider-pending");
+        } else if (providerProfile.status === 'rejected') {
+          navigate("/provider-rejected");
+        } else if (providerProfile.status === 'approved') {
+          navigate("/provider-dashboard");
+        } else {
+          navigate("/dashboard");
+        }
+      } else if (role === 'admin') {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error('Error in redirectBasedOnRole:', err);
       navigate("/dashboard");
     }
   };
