@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
+import { Database } from "@/integrations/supabase/types";
+
+type AppRole = Database["public"]["Enums"]["app_role"];
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,11 +13,20 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [userRole, setUserRole] = useState<AppRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  const fetchUserRole = async (userId: string) => {
+    const { data, error } = await supabase.rpc('get_user_role', { _user_id: userId });
+    if (!error && data) {
+      setUserRole(data as AppRole);
+      return data as AppRole;
+    }
+    return null;
+  };
+
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
@@ -22,18 +34,36 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         
         if (!session) {
           navigate("/onboarding");
+        } else if (session?.user) {
+          setTimeout(() => {
+            fetchUserRole(session.user.id).then((role) => {
+              if (role === 'provider') {
+                navigate("/provider-dashboard");
+              } else if (role === 'admin') {
+                navigate("/admin");
+              }
+            });
+          }, 0);
         }
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      setIsLoading(false);
       
       if (!session) {
+        setIsLoading(false);
         navigate("/onboarding");
+      } else if (session?.user) {
+        fetchUserRole(session.user.id).then((role) => {
+          setIsLoading(false);
+          if (role === 'provider') {
+            navigate("/provider-dashboard");
+          } else if (role === 'admin') {
+            navigate("/admin");
+          }
+        });
       }
     });
 
@@ -49,6 +79,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         </div>
       </div>
     );
+  }
+
+  // If user is provider or admin, they should be redirected (handled above)
+  if (userRole === 'provider' || userRole === 'admin') {
+    return null;
   }
 
   if (!session) {
