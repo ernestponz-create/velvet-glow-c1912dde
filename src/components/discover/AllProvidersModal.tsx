@@ -35,6 +35,7 @@ interface Provider {
   recommendation_reason: string | null;
   procedures: string[];
   years_experience: number | null;
+  provider_profile_id: string | null;
 }
 
 interface AllProvidersModalProps {
