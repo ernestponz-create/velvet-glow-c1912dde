@@ -1,17 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { Calendar, dateFnsLocalizer, Views, View } from "react-big-calendar";
-import { format, parse, startOfWeek, getDay, addHours, startOfDay } from "date-fns";
+import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
+import { useQuery } from "@tanstack/react-query";
 import { useProviderAuth } from "@/hooks/useProviderAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Clock, X } from "lucide-react";
+import { Trash2, Clock, Users } from "lucide-react";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 const locales = { "en-US": enUS };
@@ -30,14 +30,17 @@ interface CalendarEvent {
   end: Date;
   slot_type: 'available' | 'blocked' | 'booked';
   resource_id?: string;
+  staff_member_id?: string;
+  staff_member_name?: string;
   block_reason?: string;
   block_note?: string;
 }
 
-interface Resource {
+interface StaffMember {
   id: string;
   name: string;
-  type: string;
+  role: string;
+  is_active: boolean;
 }
 
 const blockReasons = [
@@ -53,7 +56,6 @@ const ProviderAvailabilityPage = () => {
   const { providerProfile } = useProviderAuth();
   const { toast } = useToast();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [resources, setResources] = useState<Resource[]>([]);
   const [currentView, setCurrentView] = useState<View>(Views.WEEK);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(true);
@@ -64,43 +66,58 @@ const ProviderAvailabilityPage = () => {
   const [slotType, setSlotType] = useState<'available' | 'blocked'>('available');
   const [blockReason, setBlockReason] = useState('');
   const [blockNote, setBlockNote] = useState('');
+  const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
+  const [filterStaffId, setFilterStaffId] = useState<string>("all");
 
-  const fetchResources = useCallback(async () => {
-    if (!providerProfile) return;
+  const isMultiStaff = providerProfile?.practice_type === "multi_staff";
 
-    const { data, error } = await supabase
-      .from("resources")
-      .select("*")
-      .eq("provider_id", providerProfile.id);
-
-    if (data && data.length > 0) {
-      setResources(data);
-    } else if (!error) {
-      setShowSetupModal(true);
-    }
-  }, [providerProfile]);
+  // Fetch staff members for multi-staff clinics
+  const { data: staffMembers = [] } = useQuery({
+    queryKey: ["staff-members", providerProfile?.id],
+    queryFn: async () => {
+      if (!providerProfile?.id) return [];
+      const { data, error } = await supabase
+        .from("staff_members")
+        .select("*")
+        .eq("provider_id", providerProfile.id)
+        .eq("is_active", true)
+        .order("name");
+      if (error) throw error;
+      return data as StaffMember[];
+    },
+    enabled: !!providerProfile?.id && isMultiStaff,
+  });
 
   const fetchSlots = useCallback(async () => {
     if (!providerProfile) return;
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("availability_slots")
-      .select("*")
+      .select("*, staff_members(name)")
       .eq("provider_id", providerProfile.id);
 
+    const { data, error } = await query;
+
     if (data) {
-      const calendarEvents: CalendarEvent[] = data.map(slot => ({
-        id: slot.id,
-        title: slot.slot_type === 'available' ? 'Available' : 
-               slot.slot_type === 'booked' ? 'Booked' : 
-               slot.block_reason || 'Blocked',
-        start: new Date(slot.start_time),
-        end: new Date(slot.end_time),
-        slot_type: slot.slot_type as 'available' | 'blocked' | 'booked',
-        resource_id: slot.resource_id,
-        block_reason: slot.block_reason,
-        block_note: slot.block_note
-      }));
+      const calendarEvents: CalendarEvent[] = data.map(slot => {
+        const staffMember = slot.staff_members as { name: string } | null;
+        return {
+          id: slot.id,
+          title: slot.slot_type === 'available' 
+            ? (staffMember?.name ? `${staffMember.name} - Available` : 'Available')
+            : slot.slot_type === 'booked' 
+              ? (staffMember?.name ? `${staffMember.name} - Booked` : 'Booked')
+              : slot.block_reason || 'Blocked',
+          start: new Date(slot.start_time),
+          end: new Date(slot.end_time),
+          slot_type: slot.slot_type as 'available' | 'blocked' | 'booked',
+          resource_id: slot.resource_id,
+          staff_member_id: slot.staff_member_id,
+          staff_member_name: staffMember?.name,
+          block_reason: slot.block_reason,
+          block_note: slot.block_note
+        };
+      });
       setEvents(calendarEvents);
     }
     setIsLoading(false);
@@ -108,10 +125,24 @@ const ProviderAvailabilityPage = () => {
 
   useEffect(() => {
     if (providerProfile) {
-      fetchResources();
       fetchSlots();
+      // For solo practitioners, check if they need setup
+      if (!isMultiStaff) {
+        checkResourceSetup();
+      }
     }
-  }, [providerProfile, fetchResources, fetchSlots]);
+  }, [providerProfile, fetchSlots, isMultiStaff]);
+
+  const checkResourceSetup = async () => {
+    if (!providerProfile) return;
+    const { data } = await supabase
+      .from("resources")
+      .select("*")
+      .eq("provider_id", providerProfile.id);
+    if (!data || data.length === 0) {
+      setShowSetupModal(true);
+    }
+  };
 
   // Setup default resource (for solo practitioners)
   const setupDefaultResource = async () => {
@@ -128,7 +159,6 @@ const ProviderAvailabilityPage = () => {
     if (!error) {
       toast({ title: "Setup Complete", description: "You can now manage your availability" });
       setShowSetupModal(false);
-      fetchResources();
     } else {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     }
@@ -140,6 +170,12 @@ const ProviderAvailabilityPage = () => {
     setSlotType('available');
     setBlockReason('');
     setBlockNote('');
+    // Pre-select first staff member for multi-staff clinics
+    if (isMultiStaff && staffMembers.length > 0) {
+      setSelectedStaffId(filterStaffId !== "all" ? filterStaffId : staffMembers[0].id);
+    } else {
+      setSelectedStaffId(null);
+    }
     setShowSlotModal(true);
   };
 
@@ -149,15 +185,22 @@ const ProviderAvailabilityPage = () => {
     setSlotType(event.slot_type === 'booked' ? 'blocked' : event.slot_type);
     setBlockReason(event.block_reason || '');
     setBlockNote(event.block_note || '');
+    setSelectedStaffId(event.staff_member_id || null);
     setShowSlotModal(true);
   };
 
   const saveSlot = async () => {
     if (!providerProfile || (!selectedSlot && !selectedEvent)) return;
 
+    // For multi-staff, require staff selection
+    if (isMultiStaff && !selectedStaffId) {
+      toast({ title: "Error", description: "Please select a staff member", variant: "destructive" });
+      return;
+    }
+
     const slotData = {
       provider_id: providerProfile.id,
-      resource_id: resources[0]?.id || null,
+      staff_member_id: isMultiStaff ? selectedStaffId : null,
       start_time: selectedSlot?.start.toISOString() || selectedEvent?.start.toISOString(),
       end_time: selectedSlot?.end.toISOString() || selectedEvent?.end.toISOString(),
       slot_type: slotType,
@@ -205,16 +248,46 @@ const ProviderAvailabilityPage = () => {
     }
   };
 
+  // Filter events by staff member
+  const filteredEvents = filterStaffId === "all" 
+    ? events 
+    : events.filter(e => e.staff_member_id === filterStaffId);
+
+  // Assign colors to staff members
+  const staffColors: Record<string, { bg: string; border: string }> = {};
+  const colorPalette = [
+    { bg: '#22c55e', border: '#16a34a' }, // green
+    { bg: '#3b82f6', border: '#2563eb' }, // blue
+    { bg: '#a855f7', border: '#9333ea' }, // purple
+    { bg: '#f97316', border: '#ea580c' }, // orange
+    { bg: '#ec4899', border: '#db2777' }, // pink
+    { bg: '#14b8a6', border: '#0d9488' }, // teal
+    { bg: '#eab308', border: '#ca8a04' }, // yellow
+  ];
+  staffMembers.forEach((staff, index) => {
+    staffColors[staff.id] = colorPalette[index % colorPalette.length];
+  });
+
   const eventStyleGetter = (event: CalendarEvent) => {
-    let backgroundColor = '#22c55e'; // green for available
+    let backgroundColor = '#22c55e';
     let borderColor = '#16a34a';
+    
+    // For multi-staff, use staff-specific colors
+    if (isMultiStaff && event.staff_member_id && staffColors[event.staff_member_id]) {
+      const colors = staffColors[event.staff_member_id];
+      backgroundColor = colors.bg;
+      borderColor = colors.border;
+    }
     
     if (event.slot_type === 'blocked') {
       backgroundColor = '#6b7280';
       borderColor = '#4b5563';
     } else if (event.slot_type === 'booked') {
-      backgroundColor = '#3b82f6';
-      borderColor = '#2563eb';
+      // Darken the color for booked slots
+      backgroundColor = isMultiStaff && event.staff_member_id 
+        ? staffColors[event.staff_member_id]?.border || '#2563eb'
+        : '#3b82f6';
+      borderColor = '#1d4ed8';
     }
 
     return {
@@ -243,9 +316,13 @@ const ProviderAvailabilityPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="font-serif text-2xl lg:text-3xl font-medium text-white mb-1">
-            My Availability
+            {isMultiStaff ? "Staff Availability" : "My Availability"}
           </h1>
-          <p className="text-white/60">Click and drag to add available slots or block time</p>
+          <p className="text-white/60">
+            {isMultiStaff 
+              ? "Manage availability for each staff member" 
+              : "Click and drag to add available slots or block time"}
+          </p>
         </div>
         
         <div className="flex gap-2">
@@ -276,21 +353,103 @@ const ProviderAvailabilityPage = () => {
         </div>
       </div>
 
+      {/* Staff Filter for Multi-Staff */}
+      {isMultiStaff && staffMembers.length > 0 && (
+        <div className="mb-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 text-white/70">
+              <Users className="w-4 h-4" />
+              <span className="text-sm">Filter by Staff:</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setFilterStaffId("all")}
+                className={filterStaffId === "all" 
+                  ? 'bg-[#d4af37] text-[#1a1a2e] border-[#d4af37]' 
+                  : 'border-white/20 text-white hover:bg-white/10'}
+              >
+                All Staff
+              </Button>
+              {staffMembers.map((staff) => (
+                <Button
+                  key={staff.id}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFilterStaffId(staff.id)}
+                  className={filterStaffId === staff.id 
+                    ? 'border-2' 
+                    : 'border-white/20 text-white hover:bg-white/10'}
+                  style={filterStaffId === staff.id ? {
+                    backgroundColor: `${staffColors[staff.id]?.bg}20`,
+                    borderColor: staffColors[staff.id]?.bg,
+                    color: staffColors[staff.id]?.bg
+                  } : undefined}
+                >
+                  <div 
+                    className="w-2 h-2 rounded-full mr-2" 
+                    style={{ backgroundColor: staffColors[staff.id]?.bg }}
+                  />
+                  {staff.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Legend */}
       <div className="flex flex-wrap gap-4 mb-6">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-emerald-500" />
-          <span className="text-white/70 text-sm">Available</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-blue-500" />
-          <span className="text-white/70 text-sm">Booked</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-gray-500" />
-          <span className="text-white/70 text-sm">Blocked</span>
-        </div>
+        {isMultiStaff && staffMembers.length > 0 ? (
+          <>
+            {staffMembers.map((staff) => (
+              <div key={staff.id} className="flex items-center gap-2">
+                <div 
+                  className="w-4 h-4 rounded" 
+                  style={{ backgroundColor: staffColors[staff.id]?.bg }}
+                />
+                <span className="text-white/70 text-sm">{staff.name}</span>
+              </div>
+            ))}
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-gray-500" />
+              <span className="text-white/70 text-sm">Blocked</span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-emerald-500" />
+              <span className="text-white/70 text-sm">Available</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-blue-500" />
+              <span className="text-white/70 text-sm">Booked</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-gray-500" />
+              <span className="text-white/70 text-sm">Blocked</span>
+            </div>
+          </>
+        )}
       </div>
+
+      {/* No Staff Warning */}
+      {isMultiStaff && staffMembers.length === 0 && (
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-6">
+          <p className="text-amber-300">
+            No staff members found. Please add staff members first before managing availability.
+          </p>
+          <Button
+            variant="link"
+            className="text-amber-400 p-0 h-auto mt-2"
+            onClick={() => window.location.href = '/provider-dashboard/staff'}
+          >
+            Go to Staff Management →
+          </Button>
+        </div>
+      )}
 
       {/* Calendar */}
       <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 overflow-hidden">
@@ -355,7 +514,7 @@ const ProviderAvailabilityPage = () => {
         `}</style>
         <Calendar
           localizer={localizer}
-          events={events}
+          events={filteredEvents}
           startAccessor="start"
           endAccessor="end"
           style={{ height: 700 }}
@@ -363,7 +522,7 @@ const ProviderAvailabilityPage = () => {
           onView={setCurrentView}
           date={currentDate}
           onNavigate={setCurrentDate}
-          selectable
+          selectable={!isMultiStaff || staffMembers.length > 0}
           onSelectSlot={handleSelectSlot}
           onSelectEvent={handleSelectEvent}
           eventPropGetter={eventStyleGetter}
@@ -375,7 +534,7 @@ const ProviderAvailabilityPage = () => {
         />
       </div>
 
-      {/* Setup Modal */}
+      {/* Setup Modal for Solo Practitioners */}
       <Dialog open={showSetupModal} onOpenChange={setShowSetupModal}>
         <DialogContent className="bg-[#1a1a2e] border-white/10 text-white max-w-md">
           <DialogHeader>
@@ -383,17 +542,13 @@ const ProviderAvailabilityPage = () => {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <p className="text-white/70">
-              {providerProfile?.practice_type === 'solo' 
-                ? "As a solo practitioner, we'll set up a simple calendar just for you."
-                : "Let's add your first resource (staff member or room)."}
+              As a solo practitioner, we'll set up a simple calendar just for you.
             </p>
             <Button
               onClick={setupDefaultResource}
               className="w-full bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-[#1a1a2e]"
             >
-              {providerProfile?.practice_type === 'solo' 
-                ? "Set Up My Calendar"
-                : "Add Myself as First Resource"}
+              Set Up My Calendar
             </Button>
           </div>
         </DialogContent>
@@ -421,6 +576,38 @@ const ProviderAvailabilityPage = () => {
                 {format(selectedSlot?.end || selectedEvent?.end || new Date(), 'h:mm a')}
               </p>
             </div>
+
+            {/* Staff Selection for Multi-Staff */}
+            {isMultiStaff && staffMembers.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-white/80">Staff Member *</Label>
+                <Select 
+                  value={selectedStaffId || ""} 
+                  onValueChange={setSelectedStaffId}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/20 text-white">
+                    <SelectValue placeholder="Select staff member" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1a2e] border-white/20">
+                    {staffMembers.map(staff => (
+                      <SelectItem 
+                        key={staff.id} 
+                        value={staff.id} 
+                        className="text-white hover:bg-white/10"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: staffColors[staff.id]?.bg }}
+                          />
+                          {staff.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Slot Type */}
             {selectedEvent?.slot_type !== 'booked' && (
