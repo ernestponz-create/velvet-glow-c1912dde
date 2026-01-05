@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { format, addDays, isSameDay } from "date-fns";
-import { Calendar, Clock, MapPin, Star, Check, Shield, ChevronRight, ChevronLeft, Video, Sparkles } from "lucide-react";
+import { format, addDays, isSameDay, parseISO, startOfDay } from "date-fns";
+import { Calendar, Clock, MapPin, Star, Check, Shield, ChevronRight, ChevronLeft, Video, Sparkles, Loader2, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,16 @@ interface Provider {
   rating: number;
   next_available_date: string | null;
   next_available_time: string | null;
+  provider_profile_id?: string | null;
+}
+
+interface AvailabilitySlot {
+  id: string;
+  start_time: string;
+  end_time: string;
+  slot_type: string;
+  staff_member_id: string | null;
+  staff_members?: { name: string } | null;
 }
 
 interface BookingWizardProps {
@@ -39,7 +49,8 @@ const investmentLabels: Record<string, { label: string; range: string }> = {
   exclusive: { label: "Exclusive", range: "$4,000+" },
 };
 
-const timeSlots = [
+// Fallback time slots when no real availability exists
+const fallbackTimeSlots = [
   "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
   "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
 ];
@@ -56,16 +67,120 @@ const BookingWizard = ({
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState<string>("");
+  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [wantsVirtualConsult, setWantsVirtualConsult] = useState(false);
   const [consultDate, setConsultDate] = useState<Date | undefined>();
   const [consultTime, setConsultTime] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlot[]>([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   const investment = investmentLabels[investmentLevel] || investmentLabels.signature;
 
-  // Generate available dates (next 14 days)
-  const availableDates = Array.from({ length: 14 }, (_, i) => addDays(new Date(), i + 1));
+  // Fetch real availability slots when provider changes
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      if (!provider?.provider_profile_id) {
+        setAvailabilitySlots([]);
+        return;
+      }
+
+      setIsLoadingSlots(true);
+      try {
+        const { data, error } = await supabase
+          .from("availability_slots")
+          .select("*, staff_members(name)")
+          .eq("provider_id", provider.provider_profile_id)
+          .eq("slot_type", "available")
+          .gte("start_time", new Date().toISOString())
+          .order("start_time");
+
+        if (error) throw error;
+        setAvailabilitySlots(data || []);
+      } catch (error) {
+        console.error("Error fetching availability:", error);
+        setAvailabilitySlots([]);
+      } finally {
+        setIsLoadingSlots(false);
+      }
+    };
+
+    if (isOpen && provider) {
+      fetchAvailability();
+    }
+  }, [isOpen, provider]);
+
+  // Get unique available dates from slots
+  const availableDates = useMemo(() => {
+    if (availabilitySlots.length === 0) {
+      // Fallback to next 14 days if no real availability
+      return Array.from({ length: 14 }, (_, i) => addDays(new Date(), i + 1));
+    }
+    
+    const uniqueDates = new Set<string>();
+    availabilitySlots.forEach(slot => {
+      const dateStr = format(parseISO(slot.start_time), "yyyy-MM-dd");
+      uniqueDates.add(dateStr);
+    });
+    
+    return Array.from(uniqueDates).map(dateStr => parseISO(dateStr));
+  }, [availabilitySlots]);
+
+  // Get available time slots for selected date
+  const timeSlotsForDate = useMemo(() => {
+    if (!selectedDate) return [];
+    
+    if (availabilitySlots.length === 0) {
+      // Fallback to static times
+      return fallbackTimeSlots.map(time => ({ time, slotId: null, staffName: null }));
+    }
+
+    const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+    const slotsForDay = availabilitySlots.filter(slot => {
+      const slotDateStr = format(parseISO(slot.start_time), "yyyy-MM-dd");
+      return slotDateStr === selectedDateStr;
+    });
+
+    // Generate hourly time slots from availability ranges
+    const timeSlots: { time: string; slotId: string; staffName: string | null }[] = [];
+    
+    slotsForDay.forEach(slot => {
+      const start = parseISO(slot.start_time);
+      const end = parseISO(slot.end_time);
+      let current = start;
+      
+      while (current < end) {
+        const timeStr = format(current, "h:mm a");
+        timeSlots.push({
+          time: timeStr,
+          slotId: slot.id,
+          staffName: slot.staff_members?.name || null,
+        });
+        current = addDays(current, 0);
+        current.setHours(current.getHours() + 1);
+      }
+    });
+
+    // Remove duplicates and sort
+    const uniqueSlots = timeSlots.reduce((acc, slot) => {
+      if (!acc.find(s => s.time === slot.time)) {
+        acc.push(slot);
+      }
+      return acc;
+    }, [] as typeof timeSlots);
+
+    return uniqueSlots.sort((a, b) => {
+      const parseTime = (t: string) => {
+        const [time, period] = t.split(" ");
+        const [hours, mins] = time.split(":").map(Number);
+        return (period === "PM" && hours !== 12 ? hours + 12 : hours === 12 && period === "AM" ? 0 : hours) * 60 + mins;
+      };
+      return parseTime(a.time) - parseTime(b.time);
+    });
+  }, [selectedDate, availabilitySlots]);
+
+  const hasRealAvailability = availabilitySlots.length > 0;
 
   const isDateAvailable = (date: Date) => {
     return availableDates.some(d => isSameDay(d, date));
@@ -343,36 +458,77 @@ const BookingWizard = ({
                     Select Your Preferred Date
                   </h2>
                   
-                  <div className="glass-card p-4 mb-4">
-                    <CalendarComponent
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={setSelectedDate}
-                      disabled={(date) => !isDateAvailable(date)}
-                      className="pointer-events-auto mx-auto"
-                    />
-                  </div>
-
-                  {selectedDate && (
-                    <div className="fade-up">
-                      <div className="text-sm text-muted-foreground mb-3">Preferred time</div>
-                      <div className="grid grid-cols-3 gap-2">
-                        {timeSlots.map((time) => (
-                          <button
-                            key={time}
-                            onClick={() => setSelectedTime(time)}
-                            className={cn(
-                              "px-3 py-2 rounded-lg text-sm font-medium transition-all",
-                              selectedTime === time
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted/50 text-foreground hover:bg-muted"
-                            )}
-                          >
-                            {time}
-                          </button>
-                        ))}
-                      </div>
+                  {isLoadingSlots ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
                     </div>
+                  ) : (
+                    <>
+                      {hasRealAvailability && (
+                        <div className="flex items-center gap-2 mb-3 px-1">
+                          <Check className="w-4 h-4 text-green-500" />
+                          <span className="text-sm text-muted-foreground">
+                            Showing real-time availability
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div className="glass-card p-4 mb-4">
+                        <CalendarComponent
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={(date) => {
+                            setSelectedDate(date);
+                            setSelectedTime("");
+                            setSelectedSlotId(null);
+                          }}
+                          disabled={(date) => !isDateAvailable(date)}
+                          className="pointer-events-auto mx-auto"
+                        />
+                      </div>
+
+                      {selectedDate && (
+                        <div className="fade-up">
+                          <div className="text-sm text-muted-foreground mb-3">
+                            {hasRealAvailability ? "Available times" : "Preferred time"}
+                          </div>
+                          {timeSlotsForDate.length > 0 ? (
+                            <div className="grid grid-cols-2 gap-2">
+                              {timeSlotsForDate.map((slot) => (
+                                <button
+                                  key={`${slot.time}-${slot.slotId}`}
+                                  onClick={() => {
+                                    setSelectedTime(slot.time);
+                                    setSelectedSlotId(slot.slotId);
+                                  }}
+                                  className={cn(
+                                    "px-3 py-2 rounded-lg text-sm font-medium transition-all text-left",
+                                    selectedTime === slot.time
+                                      ? "bg-primary text-primary-foreground"
+                                      : "bg-muted/50 text-foreground hover:bg-muted"
+                                  )}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <Clock className="w-3.5 h-3.5" />
+                                    {slot.time}
+                                  </div>
+                                  {slot.staffName && (
+                                    <div className="flex items-center gap-1 mt-1 text-xs opacity-70">
+                                      <User className="w-3 h-3" />
+                                      {slot.staffName}
+                                    </div>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              No available times for this date
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
@@ -417,7 +573,7 @@ const BookingWizard = ({
                       </div>
                       {consultDate && (
                         <div className="grid grid-cols-3 gap-2">
-                          {timeSlots.slice(0, 6).map((time) => (
+                          {fallbackTimeSlots.slice(0, 6).map((time) => (
                             <button
                               key={time}
                               onClick={() => setConsultTime(time)}

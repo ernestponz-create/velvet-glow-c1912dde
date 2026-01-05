@@ -405,6 +405,7 @@ export type Database = {
           next_available_date: string | null
           next_available_time: string | null
           procedures: string[] | null
+          provider_profile_id: string | null
           rating: number
           recommendation_reason: string | null
           review_count: number
@@ -424,6 +425,7 @@ export type Database = {
           next_available_date?: string | null
           next_available_time?: string | null
           procedures?: string[] | null
+          provider_profile_id?: string | null
           rating?: number
           recommendation_reason?: string | null
           review_count?: number
@@ -443,6 +445,7 @@ export type Database = {
           next_available_date?: string | null
           next_available_time?: string | null
           procedures?: string[] | null
+          provider_profile_id?: string | null
           rating?: number
           recommendation_reason?: string | null
           review_count?: number
@@ -450,7 +453,15 @@ export type Database = {
           updated_at?: string
           years_experience?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "providers_provider_profile_id_fkey"
+            columns: ["provider_profile_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       resources: {
         Row: {
