@@ -22,6 +22,7 @@ interface Provider {
   next_available_date: string | null;
   next_available_time: string | null;
   base_price: number | null;
+  provider_profile_id: string | null;
 }
 
 interface PastBooking {
