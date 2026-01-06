@@ -3,24 +3,7 @@ import { Star, MapPin, Clock, Images, X, ChevronLeft, ChevronRight } from "lucid
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-
-interface Provider {
-  id: string;
-  name: string; // Clinic name - shown to users
-  display_name: string;
-  specialty: string;
-  neighborhood: string;
-  city: string;
-  rating: number;
-  review_count: number;
-  next_available_date: string | null;
-  next_available_time?: string | null;
-  recommendation_reason: string | null;
-  image_url?: string | null;
-  earliest_slot_date?: string | null; // Earliest staff availability
-  earliest_slot_time?: string | null;
-  provider_profile_id?: string | null;
-}
+import { Provider } from "@/types/provider";
 
 interface ProviderCardProps {
   provider: Provider;
