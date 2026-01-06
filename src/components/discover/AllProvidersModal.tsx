@@ -20,23 +20,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { formatPriceRange, getPriceRange } from "@/lib/pricing";
-
-interface Provider {
-  id: string;
-  name: string;
-  display_name: string;
-  specialty: string;
-  neighborhood: string;
-  city: string;
-  rating: number;
-  review_count: number;
-  next_available_date: string | null;
-  next_available_time: string | null;
-  recommendation_reason: string | null;
-  procedures: string[];
-  years_experience: number | null;
-  provider_profile_id: string | null;
-}
+import { Provider } from "@/types/provider";
 
 interface AllProvidersModalProps {
   isOpen: boolean;

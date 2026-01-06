@@ -7,23 +7,7 @@ import { Button } from "@/components/ui/button";
 import { formatPriceRange, getConciergePrice } from "@/lib/pricing";
 import QuickBookModal from "@/components/booking/QuickBookModal";
 import { ProviderCard } from "@/components/discover/ProviderCard";
-interface Provider {
-  id: string;
-  name: string;
-  display_name: string;
-  rating: number;
-  review_count: number;
-  neighborhood: string;
-  city: string;
-  specialty: string;
-  procedures: string[];
-  recommendation_reason: string | null;
-  image_url: string | null;
-  next_available_date: string | null;
-  next_available_time: string | null;
-  base_price: number | null;
-  provider_profile_id: string | null;
-}
+import { Provider } from "@/types/provider";
 
 interface PastBooking {
   id: string;
